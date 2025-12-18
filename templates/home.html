@@ -11,7 +11,7 @@
   <div class="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
 
     <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-      Internship Attendance Page
+      Registration Form
     </h2>
 
     <div id="successBox" class="hidden mb-6 p-4 rounded-lg bg-green-100 text-green-700 text-center">
@@ -91,6 +91,11 @@
           class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">
           Submit
         </button>
+        
+        <button type="button" onclick="clearForm()"
+    class="w-full bg-red-100 text-red-600 py-2 rounded-md font-semibold hover:bg-red-200 transition">
+    Clear
+  </button>
 
         <button type="button" onclick="addAnother()"
           class="w-full bg-gray-200 text-gray-700 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
@@ -101,22 +106,26 @@
     </form>
   </div>
 
-  <!-- SIMPLE JS -->
-  <script>
-    const form = document.getElementById("internForm");
-    const successBox = document.getElementById("successBox");
+ <script>
+  const form = document.getElementById("internForm");
+  const successBox = document.getElementById("successBox");
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();   // prevent page reload
-      successBox.classList.remove("hidden");
-      form.reset();
-    });
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    successBox.classList.remove("hidden");
+    form.reset();
+  });
 
-    function addAnother() {
-      successBox.classList.add("hidden");
-      form.reset();
-    }
-  </script>
+  function addAnother() {
+    successBox.classList.add("hidden");
+    form.reset();
+  }
+
+  function clearForm() {
+    successBox.classList.add("hidden");
+    form.reset();
+  }
+</script>
 
 </body>
 </html>

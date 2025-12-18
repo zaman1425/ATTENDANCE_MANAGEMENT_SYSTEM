@@ -2,31 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Login</title>
+  <title>HAL Internship Programme</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gray-100">
 
-  <div class="bg-white p-8 rounded-lg shadow-md w-96">
-    <h2 class="text-2xl font-bold text-center mb-6">Admin Login</h2>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
 
-    <form method="POST">
-      <div class="mb-4">
-        <label class="block text-gray-700">Email</label>
-        <input type="email" name="email" required
-               class="w-full px-3 py-2 border rounded-lg focus:outline-none">
-      </div>
+  <div class="bg-white shadow-xl rounded-2xl p-10 max-w-lg w-full text-center">
 
-      <div class="mb-4">
-        <label class="block text-gray-700">Password</label>
-        <input type="password" name="password" required
-               class="w-full px-3 py-2 border rounded-lg focus:outline-none">
-      </div>
+    <h1 class="text-3xl font-bold text-blue-700 mb-4">
+      Welcome to HAL Intern Programme
+    </h1>
 
-      <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-        Login
-      </button>
-    </form>
+    <p class="text-gray-600 mb-8">
+      Get ready to experience real-world project experience!
+    </p>
+
+    <div class="space-y-4">
+
+      <a href="/admin-login"
+         class="block w-full py-3 rounded-lg border border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition">
+        Login as Admin
+      </a>
+
+      <a href="/home"
+         class="block w-full py-3 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition">
+        Register as New Intern
+      </a>
+
+      <a href="/login"
+         class="block w-full py-3 rounded-lg border border-purple-600 text-purple-600 font-semibold hover:bg-purple-600 hover:text-white transition">
+        Already Registered
+      </a>
+
+    </div>
   </div>
 
 </body>
