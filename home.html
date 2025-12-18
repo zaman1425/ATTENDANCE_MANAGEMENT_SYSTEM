@@ -1,87 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Internship Home Page</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Internship Home Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
-    <div class="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
-        
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-            Internship Attendance Page
-        </h2>
+  <div class="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
 
-        <form class="space-y-4">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+      Internship Attendance Page
+    </h2>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Registration Number</label>
-                <input type="text" placeholder="Enter Reg. No"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" placeholder="Enter Full Name"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Age</label>
-                <input type="number" placeholder="Enter Age"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Contact Number</label>
-                <input type="tel" placeholder="Enter Contact Number"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">College Name</label>
-                <input type="text" placeholder="Enter College Name"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Course</label>
-                <input type="text" placeholder="Enter Course"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Duration of Internship</label>
-                <select class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-                    <option>Select Duration</option>
-                    <option>1 Month</option>
-                    <option>2 Months</option>
-                    <option>3 Months</option>
-                    <option>6 Months</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Reference By</label>
-                <input type="text" placeholder="Referred By (Optional)"
-                       class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Project Title</label>
-                <textarea placeholder="Enter Project Title"
-                          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"  required></textarea>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Upload Document</label>
-                <input type="file"
-                       class="mt-1 w-full p-2 border rounded-md bg-white focus:ring-2 focus:ring-blue-500" required>
-            </div>
-            <div class="pt-4">
-                <button type="submit"
-                        class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition" required>
-                    Submit
-                </button>
-            </div>
-
-        </form>
+    <div id="successBox" class="hidden mb-6 p-4 rounded-lg bg-green-100 text-green-700 text-center">
+      Intern added successfully
     </div>
+
+    <form id="internForm" class="space-y-4">
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Registration Number</label>
+        <input type="text" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Age</label>
+        <input type="number" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+        <input type="tel" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">College Name</label>
+        <input type="text" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Course</label>
+        <input type="text" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Duration of Internship</label>
+        <select required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+          <option value="">Select Duration</option>
+          <option>1 Month</option>
+          <option>2 Months</option>
+          <option>3 Months</option>
+          <option>6 Months</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Reference By</label>
+        <input type="text"
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Project Title</label>
+        <textarea required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Upload Document</label>
+        <input type="file" required
+          class="mt-1 w-full p-2 border rounded-md bg-white focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div class="pt-4 flex gap-4">
+        <button type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">
+          Submit
+        </button>
+
+        <button type="button" onclick="addAnother()"
+          class="w-full bg-gray-200 text-gray-700 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
+          Add Another Intern
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- SIMPLE JS -->
+  <script>
+    const form = document.getElementById("internForm");
+    const successBox = document.getElementById("successBox");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();   // prevent page reload
+      successBox.classList.remove("hidden");
+      form.reset();
+    });
+
+    function addAnother() {
+      successBox.classList.add("hidden");
+      form.reset();
+    }
+  </script>
 
 </body>
 </html>

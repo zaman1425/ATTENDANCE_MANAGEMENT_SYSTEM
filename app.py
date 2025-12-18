@@ -38,6 +38,11 @@ def dashboard():
 def home():
     return render_template("home.html")
 
+@app.route("/about.html")
+def about():
+    return render_template("login.html")
+
+@app.route()
 
 @app.route("/logout")
 def logout():
