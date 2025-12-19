@@ -17,7 +17,6 @@ USER_PASSWORD_HASH = generate_password_hash(
 def login():
     return render_template("login.html")
 
-
 @app.route("/dashboard")
 def dashboard():
     if "user_logged_in" in session:
@@ -36,6 +35,7 @@ def logout():
 @app.route("/already")
 def already():
     return render_template("already.html")
+
 
 
 if __name__ == "__main__":
