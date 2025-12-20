@@ -17,6 +17,19 @@ USER_PASSWORD_HASH = generate_password_hash(
 def login():
     return render_template("login.html")
 
+@app.route("/admin_login", methods=["GET","POST"])
+def admin_login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        if email == "admin@gmail.com" and password == "admin123":
+            return redirect("/admin/dashboard")
+        else:
+            return render_template("admin_login.html", error="Invalid admin credentials")
+
+    return render_template("admin_login.html")
+
 @app.route("/dashboard")
 def dashboard():
     if "user_logged_in" in session:

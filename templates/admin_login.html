@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-xl w-full max-w-md p-8">
+
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+      Admin Login
+    </h2>
+    {% if error %}
+    <div class="mb-4 p-3 rounded bg-red-100 text-red-700 text-center">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/admin_login" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email ID</label>
+        <input type="email" name="email" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" name="password" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div class="pt-4 flex gap-3">
+        <button type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">
+          Login as Admin
+        </button>
+
+        <button type="reset"
+          class="w-full bg-gray-200 text-gray-700 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
+          Clear
+        </button>
+      </div>
+
+      <div class="pt-2">
+        <a href="{{url_for('login')}}"
+          class="block text-center w-full bg-green-100 text-green-700 py-2 rounded-md font-semibold hover:bg-green-200 transition">
+          Home
+        </a>
+      </div>
+
+    </form>
+
+  </div>
+
+</body>
+</html>
