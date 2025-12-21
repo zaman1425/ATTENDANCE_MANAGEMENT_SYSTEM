@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registration Successful</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
+
+    <h1 class="text-3xl font-bold text-center text-green-600 mb-2">
+      🎉 Congratulations!
+    </h1>
+
+    <p class="text-xl text-center text-gray-800 mb-4">
+      Welcome to HAL Intern Programme!
+    </p>
+
+    <p class="text-center text-lg font-semibold mb-6">
+      Registration Number:
+      <span class="text-blue-600">{{ intern.reg_no }}</span>
+    </p>
+
+    <div class="border-t pt-4 space-y-2 text-gray-700">
+      <p><b>Name:</b> {{ intern.name }}</p>
+      <p><b>Age:</b> {{ intern.age }}</p>
+      <p><b>Contact:</b> {{ intern.contact }}</p>
+      <p><b>College:</b> {{ intern.college }}</p>
+      <p><b>Course:</b> {{ intern.course }}</p>
+      <p><b>Duration:</b> {{ intern.duration }}</p>
+      <p><b>Project Title:</b> {{ intern.project }}</p>
+    </div>
+
+    <div class="mt-6 text-center text-sm text-gray-600">
+      Intern Email ID:
+      <span class="font-semibold text-gray-800">
+        {{ intern.email }}
+      </span>
+    </div>
+
+  </div>
+
+</body>
+</html>
