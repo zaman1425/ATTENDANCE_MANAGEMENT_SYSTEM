@@ -19,7 +19,6 @@
     </div>
 
     <form id="internForm" class="space-y-4">
-
       <div>
         <label class="block text-sm font-medium text-gray-700">Registration Number</label>
         <input type="text" required
@@ -85,28 +84,39 @@
         <input type="file" required
           class="mt-1 w-full p-2 border rounded-md bg-white focus:ring-2 focus:ring-blue-500">
       </div>
+      <hr class="my-4">
 
+      <h3 class="text-lg font-semibold text-gray-800">
+        Intern Login Credentials
+      </h3>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email ID</label>
+        <input type="email" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" required
+          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
+      </div>
       <div class="pt-4 flex gap-4">
         <button type="submit"
           class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">
           Submit
         </button>
-        
-        <button type="button" onclick="clearForm()"
-    class="w-full bg-red-100 text-red-600 py-2 rounded-md font-semibold hover:bg-red-200 transition">
-    Clear
-  </button>
 
-        <button type="button" onclick="addAnother()"
-          class="w-full bg-gray-200 text-gray-700 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
-          Add Another Intern
+        <button type="button" onclick="clearForm()"
+          class="w-full bg-red-100 text-red-600 py-2 rounded-md font-semibold hover:bg-red-200 transition">
+          Clear
         </button>
       </div>
 
     </form>
   </div>
 
- <script>
+<script>
   const form = document.getElementById("internForm");
   const successBox = document.getElementById("successBox");
 
@@ -115,11 +125,6 @@
     successBox.classList.remove("hidden");
     form.reset();
   });
-
-  function addAnother() {
-    successBox.classList.add("hidden");
-    form.reset();
-  }
 
   function clearForm() {
     successBox.classList.add("hidden");
