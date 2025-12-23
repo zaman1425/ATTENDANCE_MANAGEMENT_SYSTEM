@@ -10,7 +10,7 @@ app.secret_key = "super-secret-key"
 def get_db_connection():
     return psycopg2.connect(
         host="localhost",
-        database="intern",
+        database="postgres",
         user="postgres",
         password="postgres",
         port=5432,
@@ -77,8 +77,6 @@ def success(reg_no):
 
     return render_template("success.html", intern=intern)
 
-
-
 @app.route("/already", methods=["GET", "POST"])
 def already():
     if request.method == "POST":
@@ -105,10 +103,60 @@ def already():
 
     return render_template("already.html")
 
-
-@app.route("/home")
+@app.route("/home", methods=["GET", "POST"])
 def home():
+    if request.method == "POST":
+
+        reg_no = request.form.get("reg_no")
+        intern_name = request.form.get("intern_name")
+        age = request.form.get("age")
+        contact = request.form.get("contact")
+        college = request.form.get("college")
+        course = request.form.get("course")
+        duration = int(request.form.get("duration"))
+        reference_by = request.form.get("reference_by")
+        project = request.form.get("project")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        password_hash = generate_password_hash(
+            password,
+            method="pbkdf2:sha256",
+            salt_length=16
+        )
+
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        cur.execute("""
+            INSERT INTO interns
+            (reg_no, intern_name, age, contact, college, course,
+             duration, reference_by, project, email, password_hash)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            RETURNING reg_no
+        """, (
+            reg_no,
+            intern_name,
+            age,
+            contact,
+            college,
+            course,
+            duration,
+            reference_by,
+            project,
+            email,
+            password_hash  
+        ))
+
+        reg_no = cur.fetchone()["reg_no"]
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for("success", reg_no=reg_no))
+
     return render_template("home.html")
+
 
 
 @app.route("/logout")

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - HAL Interns</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-green-100 via-blue-100 to-purple-100 min-h-screen">
+
+  <div class="max-w-4xl mx-auto py-10">
+
+    <div class="bg-white shadow-lg rounded-2xl p-6 mb-8 text-center">
+      <h1 class="text-3xl font-extrabold text-gray-800">Admin Dashboard</h1>
+      <p class="text-gray-600 mt-1">Search and manage HAL interns</p>
+    </div>
+
+    <div class="bg-white shadow-xl rounded-2xl p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Search Intern</h2>
+      <form method="POST" class="space-y-4">
+        <input name="reg_no" placeholder="Registration Number" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+        <input name="intern_name" placeholder="Intern Name" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+        <input name="email" placeholder="Email ID" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+
+        <div class="flex gap-3">
+          <button type="submit" class="btn w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">Search</button>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn w-full bg-gray-400 text-white py-2 rounded-md font-semibold hover:bg-gray-500 transition text-center">Clear</a>
+          <a href="{{ url_for('logout') }}" class="btn w-full bg-red-600 text-white py-2 rounded-md font-semibold hover:bg-red-700 transition text-center">Logout</a>
+        </div>
+      </form>
+    </div>
+
+    {% if interns %}
+    <div class="bg-white shadow-xl rounded-2xl p-6">
+      <p class="mb-4 font-semibold text-gray-700">{{ count }} record(s) found</p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-200">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border border-gray-200 px-4 py-2 text-left">Reg No</th>
+              <th class="border border-gray-200 px-4 py-2 text-left">Name</th>
+              <th class="border border-gray-200 px-4 py-2 text-left">Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in interns %}
+            <tr class="hover:bg-gray-50">
+              <td class="border border-gray-200 px-4 py-2">
+                <a class="text-blue-600 underline" href="{{ url_for('admin_attendance', reg_no=i.reg_no) }}">
+                  {{ i.reg_no }}
+                </a>
+              </td>
+              <td class="border border-gray-200 px-4 py-2">{{ i.intern_name }}</td>
+              <td class="border border-gray-200 px-4 py-2">{{ i.email }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</body>
+</html>
