@@ -82,11 +82,12 @@ def already():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+
         conn = get_db_connection()
         cur = conn.cursor()
 
         cur.execute(
-            "SELECT password FROM interns WHERE email = %s",
+            "SELECT password_hash FROM interns WHERE email = %s",
             (email,)
         )
         intern = cur.fetchone()
@@ -94,27 +95,29 @@ def already():
         cur.close()
         conn.close()
 
-        if intern and check_password_hash(intern["password"], password):
+        if intern and check_password_hash(intern["password_hash"], password):
             session["intern_logged_in"] = True
             session["intern_email"] = email
-            return redirect(url_for("home"))
+            return redirect(url_for("intern_dashboard"))
 
         return render_template("already.html", error="Invalid intern credentials")
 
     return render_template("already.html")
+
+
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
 
         reg_no = request.form.get("reg_no")
-        intern_name = request.form.get("intern_name")
+        intern_name = request.form.get("name")
         age = request.form.get("age")
         contact = request.form.get("contact")
         college = request.form.get("college")
         course = request.form.get("course")
         duration = int(request.form.get("duration"))
-        reference_by = request.form.get("reference_by")
+        reference_by = request.form.get("reference")
         project = request.form.get("project")
         email = request.form.get("email")
         password = request.form.get("password")
@@ -156,6 +159,41 @@ def home():
         return redirect(url_for("success", reg_no=reg_no))
 
     return render_template("home.html")
+
+@app.route("/intern_dashboard")
+def intern_dashboard():
+    if not session.get("intern_logged_in"):
+        return redirect(url_for("already"))
+
+    email = session["intern_email"]
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * FROM interns WHERE email = %s",
+        (email,)
+    )
+    intern = cur.fetchone()
+
+    cur.execute(
+        "SELECT date, status FROM attendance WHERE intern_email = %s ORDER BY date DESC",
+        (email,)
+    )
+    attendance = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    if not intern:
+        return "Intern not found", 404
+
+    return render_template(
+        "intern_dashboard.html",
+        intern=intern,
+        attendance=attendance
+    )
+
 
 
 
