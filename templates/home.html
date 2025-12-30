@@ -2,112 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Internship Registration</title>
-
-  <!-- ✅ Tailwind CDN -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internship Application Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-6">
 
-  <div class="bg-white shadow-lg rounded-xl w-full max-w-2xl p-8">
+  <div class="bg-white shadow-xl shadow-slate-200 border border-slate-100 rounded-2xl w-full max-w-3xl overflow-hidden">
+    
+    <div class="h-2 bg-indigo-600"></div>
 
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-      Registration Form
-    </h2>
-    <form id="internForm" class="space-y-4" method="POST" action="/home">
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Registration Number</label>
-        <input type="text" name="reg_no" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
+    <div class="p-8 md:p-12">
+      <div class="mb-10 text-center">
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+          Internship Registration
+        </h2>
+        <p class="text-slate-500 mt-2">Please complete the form below to start your application process.</p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Name</label>
-        <input type="text" name="name" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+      <form id="internForm" class="space-y-8" method="POST" action="/home">
+        
+        <section>
+          <div class="flex items-center space-x-2 mb-6 border-b border-slate-100 pb-2">
+            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded">01</span>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Personal Information</h3>
+          </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Age</label>
-        <input type="number" name="age" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Registration Number</label>
+              <input type="text" name="reg_no" placeholder="e.g. REG-2024-001" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Contact Number</label>
-        <input type="tel" name="contact" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
+              <input type="text" name="name" placeholder="John Doe" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">College Name</label>
-        <input type="text" name="college" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Age</label>
+              <input type="number" name="age" min="18" max="99" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Course</label>
-        <input type="text" name="course" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Contact Number</label>
+              <input type="tel" name="contact" placeholder="+1 (555) 000-0000" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
+          </div>
+        </section>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Duration of Internship</label>
-        <select name="duration" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-          <option value="">Select Duration</option>
-          <option value="1">1 Month</option>
-          <option value="2">2 Months</option>
-          <option value="3">3 Months</option>
-          <option value="6">6 Months</option>
-        </select>
-      </div>
+        <section>
+          <div class="flex items-center space-x-2 mb-6 border-b border-slate-100 pb-2">
+            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded">02</span>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Academic & Project Details</h3>
+          </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Reference By</label>
-        <input type="text" name="reference"
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500">
-      </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-1">
+              <label class="block text-sm font-semibold text-slate-700 mb-1">College/University</label>
+              <input type="text" name="college" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Project Title</label>
-        <textarea name="project" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
-      </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Course of Study</label>
+              <input type="text" name="course" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <hr class="my-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Internship Duration</label>
+              <select name="duration" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none appearance-none">
+                <option value="">Select Duration</option>
+                <option value="1">1 Month</option>
+                <option value="2">2 Months</option>
+                <option value="3">3 Months</option>
+                <option value="6">6 Months</option>
+              </select>
+            </div>
 
-      <h3 class="text-lg font-semibold text-gray-800">
-        Intern Login Credentials
-      </h3>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Reference (If any)</label>
+              <input type="text" name="reference"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Email ID</label>
-        <input type="email" name="email" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
-      </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Project Title/Description</label>
+              <textarea name="project" rows="3" required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none resize-none"></textarea>
+            </div>
+          </div>
+        </section>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" name="password" required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
-      </div>
+        <section class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+          <div class="flex items-center space-x-2 mb-4">
+            <span class="bg-slate-200 text-slate-700 text-xs font-bold px-2 py-1 rounded">03</span>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700">Account Credentials</h3>
+          </div>
 
-      <div class="pt-4 flex gap-4">
-        <button type="submit"
-          class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition">
-          Submit
-        </button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+              <input type="email" name="email" placeholder="name@example.com" required
+                class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
 
-        <button type="reset"
-          class="w-full bg-red-100 text-red-600 py-2 rounded-md font-semibold hover:bg-red-200 transition">
-          Clear
-        </button>
-      </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Secure Password</label>
+              <input type="password" name="password" placeholder="••••••••" required
+                class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none">
+            </div>
+          </div>
+        </section>
 
-    </form>
+        <div class="flex flex-col md:flex-row gap-4 pt-4">
+          <button type="submit"
+            class="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-md shadow-indigo-100">
+            Submit Registration
+          </button>
+
+          <button type="reset"
+            class="px-8 py-3 bg-white text-slate-500 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50 hover:text-slate-700 transition-all">
+            Clear All
+          </button>
+        </div>
+
+      </form>
+    </div>
+    
+    <div class="bg-slate-50 px-8 py-4 border-t border-slate-100 text-center">
+      <p class="text-xs text-slate-400">© 2024 Your Company Name. Secure Data Transmission Enabled.</p>
+    </div>
   </div>
 
 </body>

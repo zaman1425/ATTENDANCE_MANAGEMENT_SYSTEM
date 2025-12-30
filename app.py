@@ -85,7 +85,6 @@ def already():
 
         conn = get_db_connection()
         cur = conn.cursor()
-
         cur.execute(
             "SELECT password_hash FROM interns WHERE email = %s",
             (email,)
