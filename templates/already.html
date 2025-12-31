@@ -2,59 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Intern Login</title>
+  <title>Intern Login | HAL</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100">
 
-  <div class="bg-white shadow-xl rounded-2xl w-full max-w-md p-8">
+<body class="min-h-screen bg-slate-950 relative overflow-hidden">
 
-    <h2 class="text-2xl font-bold text-center text-purple-700 mb-6">
-      Already Registered
-    </h2>
+  <!-- Background layers -->
+  <div class="absolute inset-0">
+    <!-- Base gradient -->
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black"></div>
 
-    <form class="space-y-4" method="POST" action="{{ url_for('already') }}">
+    <!-- Subtle grid -->
+    <div class="absolute inset-0 opacity-[0.05]"
+      style="background-image:
+      linear-gradient(to right, white 1px, transparent 1px),
+      linear-gradient(to bottom, white 1px, transparent 1px);
+      background-size: 48px 48px;">
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Email ID</label>
-        <input
-          type="email"
-          name="email"
-          required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
+    <!-- Soft glow -->
+    <div class="absolute -top-40 -right-40 w-[450px] h-[450px] bg-indigo-900/30 rounded-full blur-[120px]"></div>
+    <div class="absolute -bottom-40 -left-40 w-[450px] h-[450px] bg-blue-900/30 rounded-full blur-[120px]"></div>
+  </div>
+
+  <!-- Center container -->
+  <div class="relative z-10 min-h-screen flex items-center justify-center px-4">
+
+    <!-- Login card -->
+    <div class="w-full max-w-md bg-white rounded-xl
+                shadow-[0_25px_70px_rgba(0,0,0,0.4)]
+                border border-slate-300">
+
+      <!-- Header -->
+      <div class="px-8 py-6 bg-slate-900 rounded-t-xl border-b border-slate-700">
+        <h2 class="text-xl font-bold text-white tracking-tight">
+          Intern Login
+        </h2>
+        <p class="text-sm text-slate-300 mt-1">
+          HAL Internship Programme — Secure Access
+        </p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Password</label>
-        <input
-          type="password"
-          name="password"
-          required
-          class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500">
+      <!-- Form -->
+      <div class="px-8 py-8">
+        <form class="space-y-5" method="POST" action="{{ url_for('already') }}">
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              class="w-full px-4 py-2.5 bg-white border border-slate-400 rounded-md
+                     text-slate-900 placeholder-slate-400
+                     focus:outline-none focus:ring-2 focus:ring-blue-700">
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              required
+              class="w-full px-4 py-2.5 bg-white border border-slate-400 rounded-md
+                     text-slate-900 placeholder-slate-400
+                     focus:outline-none focus:ring-2 focus:ring-blue-700">
+          </div>
+
+          <!-- Error -->
+          {% if error %}
+          <p class="text-sm text-red-600 text-center font-medium">
+            {{ error }}
+          </p>
+          {% endif %}
+
+          <!-- Actions -->
+          <div class="pt-4 space-y-3">
+            <button type="submit"
+              class="w-full py-2.5 rounded-md bg-blue-700 text-white font-semibold
+                     hover:bg-blue-800 transition shadow-md">
+              Sign In
+            </button>
+
+            <button type="reset"
+              class="w-full py-2.5 rounded-md border border-slate-400
+                     text-slate-700 font-semibold hover:bg-slate-100 transition">
+              Clear
+            </button>
+
+            <a href="{{ url_for('login') }}"
+              class="block w-full text-center py-2.5 rounded-md
+                     bg-slate-200 text-slate-700 font-semibold
+                     hover:bg-slate-300 transition">
+              Back to Home
+            </a>
+          </div>
+
+        </form>
       </div>
 
-      {% if error %}
-      <p class="text-red-600 text-sm text-center">{{ error }}</p>
-      {% endif %}
-
-      <div class="pt-4 space-y-3">
-        <button type="submit"
-          class="w-full bg-purple-600 text-white py-2 rounded-md font-semibold hover:bg-purple-700 transition">
-          Login
-        </button>
-
-        <button type="reset"
-          class="w-full bg-red-100 text-red-600 py-2 rounded-md font-semibold hover:bg-red-200 transition">
-          Clear
-        </button>
-
-        <a href="{{ url_for('login') }}"
-          class="block w-full text-center bg-gray-200 text-gray-700 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
-          Home
-        </a>
+      <!-- Footer -->
+      <div class="px-8 py-4 bg-slate-100 border-t border-slate-300 rounded-b-xl text-center">
+        <p class="text-xs text-slate-600 font-medium">
+          © Hindustan Aeronautics Limited — Internal Access Only
+        </p>
       </div>
 
-    </form>
+    </div>
   </div>
 
 </body>

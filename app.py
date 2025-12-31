@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -90,7 +90,7 @@ def already():
             (email,)
         )
         intern = cur.fetchone()
-
+       
         cur.close()
         conn.close()
 
@@ -109,23 +109,36 @@ def already():
 def home():
     if request.method == "POST":
 
+        # Form data
         reg_no = request.form.get("reg_no")
         intern_name = request.form.get("name")
         age = request.form.get("age")
         contact = request.form.get("contact")
         college = request.form.get("college")
         course = request.form.get("course")
-        duration = int(request.form.get("duration"))
+        duration = request.form.get("duration")
         reference_by = request.form.get("reference")
         project = request.form.get("project")
         email = request.form.get("email")
         password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+
+        # Check if passwords match
+        if password != confirm_password:
+            flash("Passwords do not match!", "error")
+            return render_template("home.html", reg_no=reg_no, intern_name=intern_name, age=age,
+                                   contact=contact, college=college, course=course,
+                                   duration=duration, reference_by=reference_by,
+                                   project=project, email=email)
+
+        # Hash password
         password_hash = generate_password_hash(
             password,
             method="pbkdf2:sha256",
             salt_length=16
         )
 
+        # Insert into database
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -142,11 +155,11 @@ def home():
             contact,
             college,
             course,
-            duration,
+            int(duration),
             reference_by,
             project,
             email,
-            password_hash  
+            password_hash
         ))
 
         reg_no = cur.fetchone()["reg_no"]

@@ -2,184 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Intern Dashboard</title>
+  <title>Intern Dashboard | HAL</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gradient-to-br from-sky-100 via-blue-100 to-green-100 min-h-screen p-6">
+<body class="min-h-screen text-slate-900">
 
-<form method="POST"
-  class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 space-y-10">
+  <!-- BACKGROUND -->
+  <div class="fixed inset-0 bg-slate-950"></div>
 
-  <div class="text-center space-y-2">
-    <h1 class="text-4xl font-extrabold text-gray-800">
-      Intern Dashboard
-    </h1>
-    <p class="text-gray-500">
-      Welcome back, <span class="font-semibold text-blue-700">
-        {{ intern.intern_name }}
-      </span>
-    </p>
-  </div>
+  <!-- Engineering Grid Overlay -->
+  <div class="fixed inset-0 opacity-[0.08]
+              bg-[linear-gradient(to_right,white_1px,transparent_1px),
+                  linear-gradient(to_bottom,white_1px,transparent_1px)]
+              bg-[size:56px_56px]"></div>
 
-  <section class="border border-gray-200 rounded-2xl p-6 space-y-6 bg-gray-50">
+  <!-- Vignette -->
+  <div class="fixed inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
 
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold text-blue-700">
-        👤 Intern Profile
-      </h2>
-      <span
-        class="px-4 py-1 text-sm rounded-full bg-green-100 text-green-700 font-semibold">
-        Active Intern
+  <!-- PAGE -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 py-10">
+
+    <!-- HEADER -->
+    <div class="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">
+          Intern Dashboard
+        </h1>
+        <p class="text-slate-300 mt-1">
+          Welcome back,
+          <span class="font-semibold text-sky-400">
+            {{ intern.intern_name }}
+          </span>
+        </p>
+      </div>
+
+      <span class="inline-flex items-center px-5 py-2 rounded-full
+                   bg-emerald-500/10 text-emerald-400 font-semibold text-sm
+                   border border-emerald-500/30">
+        ● Active Intern
       </span>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- MAIN CARD -->
+    <form method="POST"
+      class="bg-white rounded-3xl shadow-[0_40px_120px_rgba(0,0,0,0.6)]
+             border border-slate-200 overflow-hidden">
 
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Registration No
-        </label>
-        <input value="{{ intern.reg_no }}" readonly
-          class="mt-1 w-full p-2 border rounded-xl bg-gray-100 cursor-not-allowed">
-      </div>
+      <!-- PROFILE -->
+      <div class="px-10 py-8 border-b border-slate-200">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="h-1 w-8 bg-blue-700 rounded-full"></div>
+          <h2 class="text-xl font-bold text-slate-800">
+            Intern Profile
+          </h2>
+        </div>
 
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Email
-        </label>
-        <input value="{{ intern.email }}" readonly
-          class="mt-1 w-full p-2 border rounded-xl bg-gray-100 cursor-not-allowed">
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Intern Name
-        </label>
-        <input name="intern_name" value="{{ intern.intern_name }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Age
-        </label>
-        <input name="age" value="{{ intern.age }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Contact
-        </label>
-        <input name="contact" value="{{ intern.contact }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          College
-        </label>
-        <input name="college" value="{{ intern.college }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Course
-        </label>
-        <input name="course" value="{{ intern.course }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Internship Duration
-        </label>
-        <input value="{{ intern.duration }}" readonly
-          class="mt-1 w-full p-2 border rounded-xl bg-gray-100 cursor-not-allowed">
-      </div>
-
-      <div>
-        <label class="text-xs uppercase tracking-wide text-gray-500">
-          Reference By
-        </label>
-        <input name="reference_by" value="{{ intern.reference_by }}"
-          class="mt-1 w-full p-2 border rounded-xl focus:ring-2 focus:ring-blue-500">
-      </div>
-
-    </div>
-  </section>
-  <section class="border border-gray-200 rounded-2xl p-6 bg-gray-50 space-y-3">
-
-    <h2 class="text-xl font-bold text-green-700">
-      🧠 Project Details
-    </h2>
-
-    <textarea name="project" rows="4"
-      class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-green-500">
-      {{ intern.project }}
-    </textarea>
-  </section>
-  <section class="flex flex-wrap gap-4 items-start justify-between">
-
-    <button type="submit"
-      class="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold
-             hover:bg-blue-700 shadow-lg transition">
-      💾 Update Details
-    </button>
-    <details class="relative">
-      <summary
-        class="cursor-pointer bg-gray-800 text-white px-8 py-3 rounded-xl
-               font-semibold shadow-md">
-        📅 View Attendance
-      </summary>
-
-      <div
-        class="absolute right-0 mt-3 bg-white shadow-2xl rounded-2xl
-               p-5 w-96 z-20">
-
-        <h3 class="font-bold text-gray-700 mb-4">
-          Attendance History
-        </h3>
-
-        {% if attendance %}
-          <div class="space-y-3">
-            {% for a in attendance %}
-              <div
-                class="flex justify-between items-center bg-gray-50
-                       p-2 rounded-lg">
-                <span class="text-sm font-medium">
-                  {{ a.date }}
-                </span>
-
-                {% if a.status == 'P' %}
-                  <span
-                    class="px-3 py-1 text-xs rounded-full
-                           bg-green-100 text-green-700 font-bold">
-                    ✔ Present
-                  </span>
-                {% else %}
-                  <span
-                    class="px-3 py-1 text-xs rounded-full
-                           bg-red-100 text-red-700 font-bold">
-                    ✖ Absent
-                  </span>
-                {% endif %}
-              </div>
-            {% endfor %}
+          <!-- READONLY -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Registration Number
+            </label>
+            <input value="{{ intern.reg_no }}" readonly
+              class="w-full px-4 py-3 bg-slate-100 border border-slate-300 rounded-xl
+                     text-slate-700 cursor-not-allowed">
           </div>
-        {% else %}
-          <p class="text-sm text-gray-500">
-            No attendance records available
-          </p>
-        {% endif %}
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Email Address
+            </label>
+            <input value="{{ intern.email }}" readonly
+              class="w-full px-4 py-3 bg-slate-100 border border-slate-300 rounded-xl
+                     text-slate-700 cursor-not-allowed">
+          </div>
+
+          <!-- EDITABLE -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Intern Name
+            </label>
+            <input name="intern_name" value="{{ intern.intern_name }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Age
+            </label>
+            <input name="age" value="{{ intern.age }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Contact Number
+            </label>
+            <input name="contact" value="{{ intern.contact }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              College / University
+            </label>
+            <input name="college" value="{{ intern.college }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Course
+            </label>
+            <input name="course" value="{{ intern.course }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Internship Duration
+            </label>
+            <input value="{{ intern.duration }}" readonly
+              class="w-full px-4 py-3 bg-slate-100 border border-slate-300 rounded-xl
+                     text-slate-700 cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">
+              Reference By
+            </label>
+            <input name="reference_by" value="{{ intern.reference_by }}"
+              class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                     focus:ring-2 focus:ring-blue-700 focus:outline-none">
+          </div>
+
+        </div>
       </div>
-    </details>
 
-  </section>
+      <!-- PROJECT -->
+      <div class="px-10 py-8 border-b border-slate-200">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-1 w-8 bg-emerald-600 rounded-full"></div>
+          <h2 class="text-xl font-bold text-slate-800">
+            Project Details
+          </h2>
+        </div>
 
-</form>
+        <textarea name="project" rows="4"
+          class="w-full px-4 py-3 bg-white border border-slate-400 rounded-xl
+                 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+{{ intern.project }}
+        </textarea>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="px-10 py-6 flex flex-wrap gap-4 justify-between items-center bg-slate-50">
+
+        <button type="submit"
+          class="px-10 py-3 bg-blue-700 text-white rounded-xl font-semibold
+                 hover:bg-blue-800 transition shadow-lg">
+          Update Details
+        </button>
+
+        <!-- ATTENDANCE -->
+        <details class="relative">
+          <summary
+            class="cursor-pointer px-8 py-3 rounded-xl bg-slate-900 text-white
+                   font-semibold hover:bg-black transition">
+            View Attendance
+          </summary>
+
+          <div
+            class="absolute right-0 mt-3 w-96 bg-white border border-slate-300
+                   rounded-2xl shadow-2xl p-5 z-20">
+
+            <h3 class="font-bold text-slate-800 mb-4">
+              Attendance History
+            </h3>
+
+            {% if attendance %}
+              <div class="space-y-3">
+                {% for a in attendance %}
+                  <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                    <span class="text-sm font-medium">
+                      {{ a.date }}
+                    </span>
+
+                    {% if a.status == 'P' %}
+                      <span class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                        Present
+                      </span>
+                    {% else %}
+                      <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700 font-bold">
+                        Absent
+                      </span>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-sm text-slate-500">
+                No attendance records available
+              </p>
+            {% endif %}
+          </div>
+        </details>
+
+      </div>
+
+    </form>
+
+    <!-- FOOTER -->
+    <p class="mt-10 text-center text-xs text-slate-400 font-medium">
+      © Hindustan Aeronautics Limited · Internal Internship Management System
+    </p>
+
+  </div>
 
 </body>
 </html>
