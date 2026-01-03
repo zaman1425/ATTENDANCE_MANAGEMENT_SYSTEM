@@ -7,157 +7,54 @@
 </head>
 
 <body class="min-h-screen relative overflow-hidden bg-slate-900 flex items-center justify-center">
-
-  <!-- BACKGROUND STRUCTURE -->
   <div class="absolute inset-0">
-    <!-- Sky depth -->
     <div class="absolute inset-0 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-700"></div>
-
-    <!-- Diagonal aviation panels -->
     <div class="absolute -left-1/3 top-0 w-2/3 h-full bg-white/10 skew-x-[-12deg]"></div>
-    <div class="absolute right-0 bottom-0 w-1/2 h-1/2 bg-black/20"></div>
-
-    <!-- Subtle grid (aerospace feel) -->
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.08)_1px,transparent_0)] bg-[size:24px_24px]"></div>
   </div>
 
-  <!-- LOGIN CONTAINER -->
   <div class="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-3xl overflow-hidden">
 
-    <!-- LEFT BRAND PANEL -->
-    <div class="hidden md:flex flex-col justify-between p-10 bg-gradient-to-b from-slate-900/80 to-slate-800/80 text-white backdrop-blur-xl">
-
+    <div class="hidden md:flex flex-col justify-between p-10 bg-slate-900/80 text-white backdrop-blur-xl">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-wide">
-          HAL
-        </h1>
-        <p class="mt-2 text-sm text-slate-300">
-          Hindustan Aeronautics Limited
-        </p>
+        <h1 class="text-3xl font-extrabold">HAL</h1>
+        <p class="text-sm text-slate-300">Hindustan Aeronautics Limited</p>
       </div>
-
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">
-          Secure Administrative Portal
-        </p>
-        <p class="text-sm text-slate-300 leading-relaxed">
-          Authorized personnel only.  
-          This system provides controlled access to internship and internal
-          administrative operations.
-        </p>
-      </div>
-
-      <div class="text-xs text-slate-400">
-        Aerospace • Defense • Engineering Excellence
-      </div>
-
+      <p class="text-lg font-semibold">Secure Administrative Portal</p>
+      <p class="text-xs text-slate-400">Authorized access only</p>
     </div>
-
     <div class="bg-white p-10 flex flex-col justify-center">
 
-      <h2 class="text-2xl font-bold text-slate-800 mb-1">
-        Admin Login
-      </h2>
-      <p class="text-sm text-slate-500 mb-8">
-        Enter your credentials to continue
-      </p>
+      <h2 class="text-2xl font-bold text-slate-800">Admin Sign In</h2>
+      <p class="text-sm text-slate-500 mb-6">Enter your credentials</p>
 
       {% if error %}
-      <div class="mb-6 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
+      <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">
         {{ error }}
       </div>
       {% endif %}
 
       <form method="POST" action="/admin_login" class="space-y-6">
 
-        <!-- EMAIL ROW -->
-        <div class="grid grid-cols-3 items-center gap-4">
-          <label class="col-span-1 text-sm font-semibold text-slate-700">
-            Email ID
-          </label>
-          <input
-            type="email"
-            name="email"
-            required
-            class="col-span-2 px-4 py-3 rounded-lg
-                   border border-slate-300
-                   bg-slate-50
-                   focus:outline-none focus:ring-2 focus:ring-blue-600
-                   focus:bg-white"
-          >
+        <div class="grid grid-cols-3 gap-4 items-center">
+          <label class="text-sm font-semibold text-slate-700">Email</label>
+          <input type="email" name="email" required
+            class="col-span-2 px-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 focus:ring-blue-600">
         </div>
-<div class="grid grid-cols-3 items-center gap-4">
-  <label class="col-span-1 text-sm font-semibold text-slate-700">
-    Password
-  </label>
-  <input
-    type="password"
-    name="password"
-    required
-    class="col-span-2 px-4 py-3 rounded-lg
-           border border-slate-300
-           bg-slate-50
-           focus:outline-none focus:ring-2 focus:ring-blue-600
-           focus:bg-white"
-  >
-</div>
-<div class="grid grid-cols-3 items-center gap-4">
-  <label class="col-span-1 text-sm font-semibold text-slate-700">
-    Retype Password
-  </label>
-  <input
-    type="password"
-    name="confirm_password"
-    required
-    class="col-span-2 px-4 py-3 rounded-lg
-           border border-slate-300
-           bg-slate-50
-           focus:outline-none focus:ring-2 focus:ring-blue-600
-           focus:bg-white"
-  >
-</div>
-        <div class="pt-6 space-y-4">
 
-          <button
-            type="submit"
-            class="w-full py-3 rounded-lg
-                   bg-gradient-to-r from-blue-700 to-indigo-700
-                   text-white font-bold tracking-wide
-                   hover:from-blue-800 hover:to-indigo-800
-                   transition shadow-lg"
-          >
-            Authenticate & Continue
-          </button>
-
-          <div class="flex gap-3">
-            <button
-              type="reset"
-              class="w-full py-3 rounded-lg
-                     border border-slate-300
-                     text-slate-700 font-semibold
-                     hover:bg-slate-100 transition"
-            >
-              Clear
-            </button>
-
-            <a
-              href="{{ url_for('login') }}"
-              class="w-full py-3 rounded-lg
-                     text-center border border-slate-300
-                     text-slate-700 font-semibold
-                     hover:bg-slate-100 transition"
-            >
-              Home
-            </a>
-          </div>
-
+        <div class="grid grid-cols-3 gap-4 items-center">
+          <label class="text-sm font-semibold text-slate-700">Password</label>
+          <input type="password" name="password" required
+            class="col-span-2 px-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 focus:ring-blue-600">
         </div>
+
+        <button class="w-full py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white font-bold rounded-lg">
+          Sign In
+        </button>
 
       </form>
-
     </div>
 
   </div>
-
 </body>
 </html>

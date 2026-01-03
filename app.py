@@ -17,48 +17,77 @@ def get_db_connection():
         cursor_factory=DictCursor
     )
 
-
 @app.route("/")
 def login():
     return render_template("login.html")
 
+@app.route("/admin_signup", methods=["GET", "POST"])
+def admin_signup():
+    conn = get_db_connection()
+    cur = conn.cursor()
 
-@app.route("/admin_login", methods=["GET", "POST"])
-def admin_login():
+    cur.execute("SELECT COUNT(*) FROM admins")
+    admin_count = cur.fetchone()[0]
+
+    if admin_count > 0:
+        cur.close()
+        conn.close()
+        return redirect(url_for("admin_login"))
+
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-        if password != confirm_password:
-            return render_template(
-                "admin_login.html",
-                error="Passwords do not match"
-            )
+        email = request.form["email"]
+        password = request.form["password"]
+        confirm = request.form["confirm_password"]
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+        if password != confirm:
+            return render_template("admin_signup.html", error="Passwords do not match")
+
+        hashed = generate_password_hash(password)
 
         cur.execute(
-            "SELECT password FROM admins WHERE email = %s",
-            (email,)
+            "INSERT INTO admins (email, password) VALUES (%s, %s)",
+            (email, hashed)
         )
-        admin = cur.fetchone()
-
+        conn.commit()
         cur.close()
         conn.close()
 
-        # 2️⃣ Validate password hash
-        if admin and check_password_hash(admin["password"], password):
-            session["admin_logged_in"] = True
-            session["admin_email"] = email
-            return redirect(url_for("admin_dashboard"))
+        return redirect(url_for("admin_login"))
 
-        return render_template(
-            "admin_login.html",
-            error="Invalid admin credentials"
-        )
+    cur.close()
+    conn.close()
+    return render_template("admin_signup.html")
+
+
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
+    if session.get("admin_logged_in"):
+        return redirect(url_for("intern_attendance"))
+
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT password FROM admins WHERE email=%s", (email,))
+        admin = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if not admin:
+            return render_template("admin_login.html", error="Admin not found")
+
+        if not check_password_hash(admin[0], password):
+            return render_template("admin_login.html", error="Invalid password")
+
+        session["admin_logged_in"] = True
+        session["admin_email"] = email
+        return redirect(url_for("intern_attendance"))
 
     return render_template("admin_login.html")
+
+
 
 @app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
@@ -106,6 +135,15 @@ def admin_dashboard():
         interns=interns,
         count=count
     )
+    
+    
+@app.route("/intern_attendance")
+def intern_attendance():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    return render_template("intern_attendance.html")
+
 
 
 @app.route("/success/<reg_no>")
