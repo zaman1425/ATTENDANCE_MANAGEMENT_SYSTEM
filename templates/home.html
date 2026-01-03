@@ -6,115 +6,318 @@
   <title>HAL Internship Registration</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-900 via-blue-900 to-black flex justify-center items-start py-10 min-h-screen">
 
-  <div class="w-full max-w-5xl bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-y-auto max-h-[90vh]">
+<body class="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 relative flex justify-center items-start py-12 px-4">
 
-    <!-- HEADER -->
-    <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-t-2xl px-10 py-6 shadow-lg">
-      <h1 class="text-3xl font-bold tracking-wide">HAL Internship Registration</h1>
-      <p class="text-sm mt-1 text-blue-100/90">Secure Internal Onboarding & Internship Management Portal</p>
-    </div>
+  <!-- Animated Background Pattern -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+  </div>
+  
+  <!-- Floating Orbs -->
+  <div class="absolute top-20 left-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-32 right-32 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  <div class="absolute top-1/3 right-1/4 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
 
-    <!-- FORM -->
-    <form method="POST" action="/home" class="px-10 py-8 space-y-10">
+  <div class="w-full max-w-6xl relative z-10">
+    
+    <!-- Main Card -->
+    <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.4)] overflow-hidden border border-white/20">
 
-      <!-- PERSONAL INFO -->
-      <section class="space-y-6">
-        <h2 class="text-lg font-semibold text-white border-b border-white/30 pb-2">Personal Information</h2>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Registration Number</label>
-          <input name="reg_no" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
+      <!-- Header Section -->
+      <div class="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-12 py-12 overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+          <div class="absolute inset-0" style="background-image: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.1) 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.1) 55%, transparent 55%); background-size: 30px 30px;"></div>
         </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Full Name</label>
-          <input name="name" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
+        <div class="relative flex items-center gap-6">
+          <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 shadow-xl">
+            <span class="text-3xl font-black text-white">HAL</span>
+          </div>
+          <div>
+            <h1 class="text-5xl font-black text-white mb-2 tracking-tight">
+              Internship Registration
+            </h1>
+            <p class="text-blue-100 text-lg">Hindustan Aeronautics Limited • Internal Portal</p>
+          </div>
         </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Age</label>
-          <input type="number" name="age" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Contact Number</label>
-          <input name="contact" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-      </section>
-
-      <!-- ACADEMIC INFO -->
-      <section class="space-y-6">
-        <h2 class="text-lg font-semibold text-white border-b border-white/30 pb-2">Academic Details</h2>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">College / University</label>
-          <input name="college" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Course</label>
-          <input name="course" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Internship Duration</label>
-          <select name="duration" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none">
-            <option value="" hidden>Select Duration</option>
-            <option>1 Month</option>
-            <option>2 Months</option>
-            <option>3 Months</option>
-            <option>6 Months</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-start">
-          <label class="text-white font-medium pt-2">Project Description</label>
-          <textarea name="project" rows="3" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
-        </div>
-      </section>
-
-      <!-- CREDENTIALS -->
-      <section class="space-y-4 bg-white/10 border border-white/30 rounded-xl p-6 backdrop-blur-md">
-        <h2 class="text-lg font-semibold text-white border-b border-white/30 pb-2">Login Credentials</h2>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Email</label>
-          <input type="email" name="email" required class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Password</label>
-          <input type="password" name="password" required
-            pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-            title="Password must be at least 8 characters, include 1 uppercase letter, 1 number, and 1 special character"
-            class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6 items-center">
-          <label class="text-white font-medium">Confirm Password</label>
-          <input type="password" name="confirm_password" required
-            pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-            title="Must match the above password"
-            class="col-span-2 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
-        </div>
-      </section>
-
-      <!-- ACTIONS -->
-      <div class="flex justify-between mt-6">
-        <button type="reset" class="px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition">Reset</button>
-        <button type="submit" class="px-10 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition">Submit Registration</button>
       </div>
 
-    </form>
+      <!-- Form Content -->
+      <form method="POST" action="/home" class="p-12 bg-gradient-to-br from-gray-50 to-blue-50/30">
 
-    <!-- FOOTER -->
-    <div class="text-center text-white/80 text-sm py-4 border-t border-white/20">
-      © HAL Internal Internship Management System
+        <!-- Personal Information Section -->
+        <div class="mb-16">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-2 h-12 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full shadow-lg shadow-blue-500/30"></div>
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800">Personal Information</h2>
+              <p class="text-sm text-gray-500 mt-1">Please provide your basic details</p>
+            </div>
+          </div>
+
+          <div class="space-y-6 bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <!-- Registration Number -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Registration Number <span class="text-red-500">*</span>
+              </label>
+              <input name="reg_no" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-200"/>
+            </div>
+
+            <!-- Full Name -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Full Name <span class="text-red-500">*</span>
+              </label>
+              <input name="name" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-200"/>
+            </div>
+
+            <!-- Age -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Age <span class="text-red-500">*</span>
+              </label>
+              <input type="number" name="age" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-200"/>
+            </div>
+
+            <!-- Contact Number -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Contact Number <span class="text-red-500">*</span>
+              </label>
+              <input name="contact" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-200"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Details Section -->
+        <div class="mb-16">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-2 h-12 bg-gradient-to-b from-indigo-500 to-indigo-600 rounded-full shadow-lg shadow-indigo-500/30"></div>
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800">Academic Details</h2>
+              <p class="text-sm text-gray-500 mt-1">Your educational background and internship preferences</p>
+            </div>
+          </div>
+
+          <div class="space-y-6 bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <!-- College -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                College / University <span class="text-red-500">*</span>
+              </label>
+              <input name="college" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200"/>
+            </div>
+
+            <!-- Course -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Course <span class="text-red-500">*</span>
+              </label>
+              <input name="course" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200"/>
+            </div>
+
+            <!-- Duration Dropdown -->
+            <div class="grid grid-cols-12 gap-6 items-center">
+              <label class="col-span-3 text-right text-gray-700 font-semibold">
+                Internship Duration <span class="text-red-500">*</span>
+              </label>
+              <select name="duration" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200 cursor-pointer">
+                <option value="" disabled selected>Select duration</option>
+                <option value="1">1 Month</option>
+                <option value="2">2 Months</option>
+                <option value="3">3 Months</option>
+                <option value="6">6 Months</option>
+              </select>
+            </div>
+
+            <!-- Reference By -->
+<div class="grid grid-cols-12 gap-6 items-center">
+  <label class="col-span-3 text-right text-gray-700 font-semibold">
+    Reference By
+  </label>
+  <input name="reference"
+    placeholder="Employee / Faculty / Referral Name"
+    class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50
+           focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10
+           outline-none transition-all duration-200"/>
+</div>
+
+            <!-- Project Description -->
+            <div class="grid grid-cols-12 gap-6 items-start">
+              <label class="col-span-3 text-right text-gray-700 font-semibold pt-3">
+                Project Description <span class="text-red-500">*</span>
+              </label>
+              <textarea name="project" rows="4" required
+                class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 text-gray-800 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all duration-200 resize-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login Credentials Section -->
+        <div class="mb-12">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-2 h-12 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full shadow-lg shadow-purple-500/30"></div>
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800">Login Credentials</h2>
+              <p class="text-sm text-gray-500 mt-1">Create your account access</p>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 shadow-lg border-2 border-purple-100">
+            <div class="space-y-6 bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-white/50">
+              <!-- Email -->
+              <div class="grid grid-cols-12 gap-6 items-center">
+                <label class="col-span-3 text-right text-gray-700 font-semibold">
+                  Email Address <span class="text-red-500">*</span>
+                </label>
+                <input type="email" name="email" required
+                  class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all duration-200"/>
+              </div>
+
+              <!-- Password with live validation -->
+              <div class="grid grid-cols-12 gap-6 items-start">
+                <label class="col-span-3 text-right text-gray-700 font-semibold pt-3">
+                  Password <span class="text-red-500">*</span>
+                </label>
+                <div class="col-span-9 space-y-3">
+                  <input type="password" id="password" name="password" required
+                    class="w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all duration-200"/>
+                  
+                  <!-- Password Requirements - Shows on focus/input -->
+                  <div id="passwordHelp" class="hidden p-5 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-300 shadow-lg">
+                    <p class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                      <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                      </svg>
+                      Password Requirements:
+                    </p>
+                    <div class="space-y-2.5">
+                      <div id="len" class="flex items-center gap-2.5 text-sm font-medium text-red-600">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>At least 8 characters</span>
+                      </div>
+                      <div id="upper" class="flex items-center gap-2.5 text-sm font-medium text-red-600">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>One uppercase letter (A-Z)</span>
+                      </div>
+                      <div id="num" class="flex items-center gap-2.5 text-sm font-medium text-red-600">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>One number (0-9)</span>
+                      </div>
+                      <div id="special" class="flex items-center gap-2.5 text-sm font-medium text-red-600">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>One special character (@$!%*?&)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="grid grid-cols-12 gap-6 items-center">
+                <label class="col-span-3 text-right text-gray-700 font-semibold">
+                  Confirm Password <span class="text-red-500">*</span>
+                </label>
+                <input type="password" name="confirm_password" required
+                  class="col-span-9 px-5 py-3.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all duration-200"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-5 pt-8">
+          <button type="reset"
+            class="px-10 py-4 rounded-xl border-2 border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg transition-all duration-200">
+            Reset Form
+          </button>
+          <button type="submit"
+            class="px-14 py-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:shadow-2xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105">
+            Submit Registration
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-center text-sm text-gray-300 py-6">
+        <p class="font-medium">© 2025 Hindustan Aeronautics Limited • Internship Management System</p>
+        <p class="text-xs text-gray-500 mt-1">Secure Internal Portal</p>
+      </div>
     </div>
 
   </div>
+
+  <script>
+  const pwd = document.getElementById("password");
+  const helpBox = document.getElementById("passwordHelp");
+  const form = document.querySelector("form");
+
+  const rules = {
+    len: v => v.length >= 8,
+    upper: v => /[A-Z]/.test(v),
+    num: v => /\d/.test(v),
+    special: v => /[@$!%*?&]/.test(v)
+  };
+
+  // Show rules only when password is invalid
+  pwd.addEventListener("input", () => {
+    let valid = true;
+
+    for (let id in rules) {
+      const rulePassed = rules[id](pwd.value);
+      const el = document.getElementById(id);
+
+      el.classList.toggle("text-red-600", !rulePassed);
+      el.classList.toggle("text-green-600", rulePassed);
+
+      if (!rulePassed) valid = false;
+    }
+
+    if (pwd.value.length > 0 && !valid) {
+      helpBox.classList.remove("hidden");
+      pwd.classList.add("border-red-500");
+    } else {
+      helpBox.classList.add("hidden");
+      pwd.classList.remove("border-red-500");
+    }
+  });
+
+  // BLOCK FORM SUBMISSION IF PASSWORD INVALID
+  form.addEventListener("submit", (e) => {
+    let valid = true;
+
+    for (let id in rules) {
+      if (!rules[id](pwd.value)) {
+        valid = false;
+      }
+    }
+
+    if (!valid) {
+      e.preventDefault();
+      helpBox.classList.remove("hidden");
+      pwd.focus();
+      pwd.classList.add("border-red-500");
+    }
+  });
+</script>
+
 
 </body>
 </html>

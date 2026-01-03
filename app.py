@@ -28,6 +28,12 @@ def admin_login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+        if password != confirm_password:
+            return render_template(
+                "admin_login.html",
+                error="Passwords do not match"
+            )
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -41,22 +47,66 @@ def admin_login():
         cur.close()
         conn.close()
 
+        # 2️⃣ Validate password hash
         if admin and check_password_hash(admin["password"], password):
             session["admin_logged_in"] = True
             session["admin_email"] = email
             return redirect(url_for("admin_dashboard"))
 
-        return render_template("admin_login.html", error="Invalid admin credentials")
+        return render_template(
+            "admin_login.html",
+            error="Invalid admin credentials"
+        )
 
     return render_template("admin_login.html")
 
-
-@app.route("/admin/dashboard")
+@app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
-    return f"Welcome Admin ({session['admin_email']})"
+    interns = []
+    count = 0
+
+    if request.method == "POST":
+        reg_no = request.form.get("reg_no", "").strip()
+        intern_name = request.form.get("intern_name", "").strip()
+        email = request.form.get("email", "").strip()
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        query = """
+            SELECT reg_no, intern_name, email
+            FROM interns
+            WHERE
+                (%s = '' OR reg_no ILIKE %s)
+                AND (%s = '' OR intern_name ILIKE %s)
+                AND (%s = '' OR email ILIKE %s)
+            ORDER BY reg_no
+        """
+
+        cur.execute(
+            query,
+            (
+                reg_no, f"%{reg_no}%",
+                intern_name, f"%{intern_name}%",
+                email, f"%{email}%"
+            )
+        )
+
+        interns = cur.fetchall()
+        count = len(interns)
+
+        cur.close()
+        conn.close()
+
+    return render_template(
+        "admin_dashboard.html",
+        interns=interns,
+        count=count
+    )
+
 
 @app.route("/success/<reg_no>")
 def success(reg_no):
@@ -109,36 +159,30 @@ def already():
 def home():
     if request.method == "POST":
 
-        # Form data
         reg_no = request.form.get("reg_no")
         intern_name = request.form.get("name")
         age = request.form.get("age")
         contact = request.form.get("contact")
         college = request.form.get("college")
         course = request.form.get("course")
-        duration = request.form.get("duration")
+        duration = int(request.form.get("duration"))
         reference_by = request.form.get("reference")
         project = request.form.get("project")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        # Check if passwords match
         if password != confirm_password:
             flash("Passwords do not match!", "error")
             return render_template("home.html", reg_no=reg_no, intern_name=intern_name, age=age,
                                    contact=contact, college=college, course=course,
                                    duration=duration, reference_by=reference_by,
                                    project=project, email=email)
-
-        # Hash password
         password_hash = generate_password_hash(
             password,
             method="pbkdf2:sha256",
             salt_length=16
         )
-
-        # Insert into database
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
