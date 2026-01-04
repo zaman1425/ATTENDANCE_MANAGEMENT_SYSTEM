@@ -21,17 +21,19 @@ def get_db_connection():
 def login():
     return render_template("login.html")
 
+
 @app.route("/admin_signup", methods=["GET", "POST"])
 def admin_signup():
+
     conn = get_db_connection()
     cur = conn.cursor()
-
     cur.execute("SELECT COUNT(*) FROM admins")
     admin_count = cur.fetchone()[0]
 
-    if admin_count > 0:
-        cur.close()
-        conn.close()
+    cur.close()
+    conn.close()
+
+    if admin_count >= 1:
         return redirect(url_for("admin_login"))
 
     if request.method == "POST":
@@ -40,10 +42,15 @@ def admin_signup():
         confirm = request.form["confirm_password"]
 
         if password != confirm:
-            return render_template("admin_signup.html", error="Passwords do not match")
+            return render_template(
+                "admin_signup.html",
+                error="Passwords do not match"
+            )
 
         hashed = generate_password_hash(password)
 
+        conn = get_db_connection()
+        cur = conn.cursor()
         cur.execute(
             "INSERT INTO admins (email, password) VALUES (%s, %s)",
             (email, hashed)
@@ -54,16 +61,30 @@ def admin_signup():
 
         return redirect(url_for("admin_login"))
 
+    return render_template("admin_signup.html")
+
+
+@app.route("/admin")
+def admin_entry():
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) FROM admins")
+    admin_count = cur.fetchone()[0]
+
     cur.close()
     conn.close()
-    return render_template("admin_signup.html")
+
+    if admin_count == 0:
+        return redirect(url_for("admin_signup"))
+    else:
+        return redirect(url_for("admin_login"))
+
 
 
 @app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
-    if session.get("admin_logged_in"):
-        return redirect(url_for("intern_attendance"))
-
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
@@ -75,15 +96,12 @@ def admin_login():
         cur.close()
         conn.close()
 
-        if not admin:
-            return render_template("admin_login.html", error="Admin not found")
-
-        if not check_password_hash(admin[0], password):
-            return render_template("admin_login.html", error="Invalid password")
+        if not admin or not check_password_hash(admin[0], password):
+            return render_template("admin_login.html", error="Invalid credentials")
 
         session["admin_logged_in"] = True
         session["admin_email"] = email
-        return redirect(url_for("intern_attendance"))
+        return redirect(url_for("intern_dashboard"))
 
     return render_template("admin_login.html")
 
