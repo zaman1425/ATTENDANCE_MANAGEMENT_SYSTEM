@@ -7,6 +7,7 @@
 </head>
 
 <body class="min-h-screen relative overflow-hidden bg-slate-900 flex items-center justify-center">
+
   <div class="absolute inset-0">
     <div class="absolute inset-0 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-700"></div>
     <div class="absolute -left-1/3 top-0 w-2/3 h-full bg-white/10 skew-x-[-12deg]"></div>
@@ -23,6 +24,7 @@
       <p class="text-lg font-semibold">Secure Administrative Portal</p>
       <p class="text-xs text-slate-400">Authorized access only</p>
     </div>
+
     <div class="bg-white p-10 flex flex-col justify-center">
 
       <h2 class="text-2xl font-bold text-slate-800">Admin Sign In</h2>
@@ -34,7 +36,7 @@
       </div>
       {% endif %}
 
-      <form method="POST" action="/admin_login" class="space-y-6">
+      <form method="POST" action="{{ url_for('admin_login') }}" class="space-y-6">
 
         <div class="grid grid-cols-3 gap-4 items-center">
           <label class="text-sm font-semibold text-slate-700">Email</label>
@@ -51,10 +53,21 @@
         <button class="w-full py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white font-bold rounded-lg">
           Sign In
         </button>
-
       </form>
-    </div>
 
+      <!-- ✅ NEW ADMIN SIGNUP LINK -->
+      <div class="mt-6 text-center">
+        <p class="text-sm text-slate-600">
+          New admin?
+          <a href="{{ url_for('admin_signup') }}"
+             class="font-semibold text-blue-700 hover:underline">
+            Click here to sign up
+          </a>
+        </p>
+      </div>
+
+    </div>
   </div>
+
 </body>
 </html>

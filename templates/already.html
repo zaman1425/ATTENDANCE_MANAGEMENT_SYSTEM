@@ -10,10 +10,8 @@
 
   <!-- Background layers -->
   <div class="absolute inset-0">
-    <!-- Base gradient -->
     <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black"></div>
 
-    <!-- Subtle grid -->
     <div class="absolute inset-0 opacity-[0.05]"
       style="background-image:
       linear-gradient(to right, white 1px, transparent 1px),
@@ -21,15 +19,12 @@
       background-size: 48px 48px;">
     </div>
 
-    <!-- Soft glow -->
     <div class="absolute -top-40 -right-40 w-[450px] h-[450px] bg-indigo-900/30 rounded-full blur-[120px]"></div>
     <div class="absolute -bottom-40 -left-40 w-[450px] h-[450px] bg-blue-900/30 rounded-full blur-[120px]"></div>
   </div>
 
-  <!-- Center container -->
   <div class="relative z-10 min-h-screen flex items-center justify-center px-4">
 
-    <!-- Login card -->
     <div class="w-full max-w-md bg-white rounded-xl
                 shadow-[0_25px_70px_rgba(0,0,0,0.4)]
                 border border-slate-300">
@@ -48,7 +43,6 @@
       <div class="px-8 py-8">
         <form class="space-y-5" method="POST" action="{{ url_for('already') }}">
 
-          <!-- Email -->
           <div>
             <label class="block text-sm font-semibold text-slate-800 mb-1">
               Email Address
@@ -61,6 +55,7 @@
                      text-slate-900 placeholder-slate-400
                      focus:outline-none focus:ring-2 focus:ring-blue-700">
           </div>
+
           <div>
             <label class="block text-sm font-semibold text-slate-800 mb-1">
               Password
@@ -73,6 +68,7 @@
                      text-slate-900 placeholder-slate-400
                      focus:outline-none focus:ring-2 focus:ring-blue-700">
           </div>
+
           {% if error %}
           <p class="text-sm text-red-600 text-center font-medium">
             {{ error }}
@@ -86,6 +82,7 @@
               Sign In
             </button>
 
+            <!-- ✅ NEW INTERN REGISTRATION LINK -->
             <button type="reset"
               class="w-full py-2.5 rounded-md border border-slate-400
                      text-slate-700 font-semibold hover:bg-slate-100 transition">
@@ -99,6 +96,15 @@
               Back to Home
             </a>
           </div>
+
+           <p class="text-sm text-center text-slate-600">
+              New intern?
+              <a href="{{ url_for('home') }}"
+                 class="font-semibold text-blue-700 hover:underline">
+                Click here for registration
+              </a>
+            </p>
+
 
         </form>
       </div>

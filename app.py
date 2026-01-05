@@ -16,26 +16,18 @@ def get_db_connection():
         port=5432,
         cursor_factory=DictCursor
     )
+    
+@app.route("/admin_signup_success")
+def admin_signup_success():
+    return render_template("admin_signup_success.html")
+
 
 @app.route("/")
 def login():
     return render_template("login.html")
 
-
 @app.route("/admin_signup", methods=["GET", "POST"])
 def admin_signup():
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM admins")
-    admin_count = cur.fetchone()[0]
-
-    cur.close()
-    conn.close()
-
-    if admin_count >= 1:
-        return redirect(url_for("admin_login"))
-
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
@@ -51,6 +43,16 @@ def admin_signup():
 
         conn = get_db_connection()
         cur = conn.cursor()
+
+        cur.execute("SELECT id FROM admins WHERE email=%s", (email,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return render_template(
+                "admin_signup.html",
+                error="Admin already exists. Please login."
+            )
+
         cur.execute(
             "INSERT INTO admins (email, password) VALUES (%s, %s)",
             (email, hashed)
@@ -58,29 +60,9 @@ def admin_signup():
         conn.commit()
         cur.close()
         conn.close()
-
-        return redirect(url_for("admin_login"))
+        return redirect(url_for("admin_signup_success"))
 
     return render_template("admin_signup.html")
-
-
-@app.route("/admin")
-def admin_entry():
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT COUNT(*) FROM admins")
-    admin_count = cur.fetchone()[0]
-
-    cur.close()
-    conn.close()
-
-    if admin_count == 0:
-        return redirect(url_for("admin_signup"))
-    else:
-        return redirect(url_for("admin_login"))
-
 
 
 @app.route("/admin_login", methods=["GET", "POST"])
@@ -97,14 +79,17 @@ def admin_login():
         conn.close()
 
         if not admin or not check_password_hash(admin[0], password):
-            return render_template("admin_login.html", error="Invalid credentials")
+            return render_template(
+                "admin_login.html",
+                error="Invalid credentials"
+            )
 
         session["admin_logged_in"] = True
         session["admin_email"] = email
-        return redirect(url_for("intern_dashboard"))
+
+        return redirect(url_for("admin_dashboard"))
 
     return render_template("admin_login.html")
-
 
 
 @app.route("/admin_dashboard", methods=["GET", "POST"])
@@ -153,6 +138,7 @@ def admin_dashboard():
         interns=interns,
         count=count
     )
+
     
     
 @app.route("/intern_attendance")
@@ -305,8 +291,6 @@ def intern_dashboard():
         intern=intern,
         attendance=attendance
     )
-
-
 
 
 @app.route("/logout")
