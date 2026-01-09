@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Attendance | HAL Internship Portal</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 relative">
+
+    <!-- ===== TOP NAV ===== -->
+<div class="flex justify-between items-center mb-8">
+
+  <!-- Back to Dashboard -->
+  <a href="{{ url_for('admin_dashboard') }}"
+     class="flex items-center gap-2 px-6 py-2.5 rounded-xl
+            bg-white/10 backdrop-blur-md border border-white/20
+            text-white font-semibold
+            hover:bg-white/20 transition">
+
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 19l-7-7 7-7"/>
+    </svg>
+
+    Dashboard
+  </a>
+
+  <!-- Logout -->
+  <a href="{{ url_for('logout') }}"
+     class="flex items-center gap-2 px-6 py-2.5 rounded-xl
+            bg-gradient-to-r from-red-500 to-red-600
+            text-white font-semibold shadow-lg
+            hover:from-red-600 hover:to-red-700 transition">
+
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6
+               a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+    </svg>
+
+    Logout
+  </a>
+
+</div>
+
+<!-- Background effects -->
+<div class="fixed inset-0 pointer-events-none">
+  <div class="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-20 right-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
+</div>
+
+<div class="relative max-w-7xl mx-auto px-6 py-10">
+
+  <!-- ================= HEADER ================= -->
+  <div class="mb-10 bg-gradient-to-r from-blue-600/90 via-indigo-600/90 to-purple-600/90
+              backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+    <h1 class="text-4xl font-black text-white tracking-tight">
+      Intern Attendance
+    </h1>
+    <p class="text-blue-100 mt-2 text-lg">
+      Attendance Management & Verification Panel
+    </p>
+  </div>
+
+  <!-- ================= INTERN DETAILS ================= -->
+  <div class="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl
+              shadow-[0_20px_60px_rgba(0,0,0,0.3)] mb-10">
+
+    <div class="bg-gradient-to-r from-slate-50 to-blue-50 px-8 py-6 border-b-2 border-gray-200">
+      <h2 class="text-xl font-bold text-gray-800">
+        Intern Details
+      </h2>
+    </div>
+
+    <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <p class="text-sm text-gray-500 font-semibold">Registration No</p>
+        <p class="text-lg font-bold text-gray-800">{{ intern.reg_no }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-semibold">Intern Name</p>
+        <p class="text-lg font-semibold text-gray-800">{{ intern.intern_name }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-semibold">Email</p>
+        <p class="text-gray-700">{{ intern.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MARK ATTENDANCE ================= -->
+  <div class="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl
+              shadow-[0_20px_60px_rgba(0,0,0,0.3)] mb-10">
+
+    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-8 py-6 border-b-2 border-emerald-200">
+      <h2 class="text-xl font-bold text-gray-800">
+        Mark Attendance (Today)
+      </h2>
+    </div>
+
+    <form method="POST" class="p-8 flex items-center gap-4">
+
+      <button name="status" value="P"
+              class="px-8 py-2.5 rounded-xl border-2 border-emerald-500
+                     text-emerald-700 font-bold
+                     hover:bg-emerald-500 hover:text-white
+                     transition-all duration-200">
+        Present
+      </button>
+
+      <button name="status" value="A"
+              class="px-8 py-2.5 rounded-xl border-2 border-red-500
+                     text-red-600 font-bold
+                     hover:bg-red-500 hover:text-white
+                     transition-all duration-200">
+        Absent
+      </button>
+
+      <span class="ml-auto text-sm text-gray-500">
+        Attendance will be recorded for today only
+      </span>
+
+    </form>
+  </div>
+
+  <!-- ================= ATTENDANCE HISTORY ================= -->
+  <div class="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl
+              shadow-[0_20px_60px_rgba(0,0,0,0.3)] overflow-hidden">
+
+    <div class="bg-gradient-to-r from-slate-100 to-gray-100 px-8 py-6 border-b-2 border-gray-300">
+      <h2 class="text-xl font-bold text-gray-800">
+        Attendance History
+      </h2>
+    </div>
+
+    {% if attendance %}
+    <div class="p-8">
+      <div class="overflow-x-auto rounded-xl border-2 border-gray-200 shadow-lg">
+        <table class="w-full text-sm">
+
+          <thead class="bg-gradient-to-r from-slate-100 to-gray-200 border-b-2 border-gray-300">
+            <tr>
+              <th class="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                Date
+              </th>
+              <th class="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                Status
+              </th>
+              <th class="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                Marked At
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for a in attendance %}
+            <tr class="hover:bg-blue-50 transition">
+              <td class="px-8 py-5">{{ a.date }}</td>
+              <td class="px-8 py-5">
+                {% if a.status == 'P' %}
+                  <span class="px-4 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-xs">
+                    Present
+                  </span>
+                {% else %}
+                  <span class="px-4 py-1 rounded-full bg-red-100 text-red-700 font-semibold text-xs">
+                    Absent
+                  </span>
+                {% endif %}
+              </td>
+              <td class="px-8 py-5 text-gray-600">{{ a.marked_at }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+    {% else %}
+      <div class="p-10 text-center text-gray-500">
+        No attendance records available.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="mt-10 text-center">
+    <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20
+                rounded-full px-8 py-3 shadow-lg">
+      <p class="text-sm text-white/80 font-medium">
+        @Hindustan Aeronautics Limited · Internal Admin System
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

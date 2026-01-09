@@ -1,19 +1,23 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, RealDictCursor
+from datetime import date, datetime
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
 
+load_dotenv()
 
 def get_db_connection():
     return psycopg2.connect(
-        host="localhost",
-        database="postgres",
-        user="postgres",
-        password="postgres",
-        port=5432,
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT"),
         cursor_factory=DictCursor
     )
     
@@ -92,62 +96,168 @@ def admin_login():
     return render_template("admin_login.html")
 
 
+
 @app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
-
     interns = []
     count = 0
-
-    if request.method == "POST":
-        reg_no = request.form.get("reg_no", "").strip()
-        intern_name = request.form.get("intern_name", "").strip()
-        email = request.form.get("email", "").strip()
-
+    reg_no = request.values.get("reg_no", "").strip()
+    intern_name = request.values.get("intern_name", "").strip()
+    if reg_no or intern_name:
         conn = get_db_connection()
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            cur.execute("SELECT COUNT(*) AS cnt FROM interns")
+            cnt_row = cur.fetchone()
+            if isinstance(cnt_row, dict):
+                total_interns = cnt_row.get("cnt")
+            else:
+                total_interns = cnt_row[0]
+        except Exception as _e:
+            total_interns = f"error: {_e}"
+        if reg_no:
+            try:
+                cur.execute("SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s", (reg_no,))
+                exact_reg = cur.fetchall()
+            except Exception as _e:
+                exact_reg = f"error: {_e}"
+        try:
+            cur.execute("SELECT reg_no, intern_name, email FROM interns LIMIT 5")
+            sample_rows = cur.fetchall()
+        except Exception as _e:
+            sample_rows = f"error: {_e}"
+        where_clauses = []
+        params = []
 
-        query = """
-            SELECT reg_no, intern_name, email
-            FROM interns
-            WHERE
-                (%s = '' OR reg_no ILIKE %s)
-                AND (%s = '' OR intern_name ILIKE %s)
-                AND (%s = '' OR email ILIKE %s)
-            ORDER BY reg_no
-        """
+        if reg_no:
+            where_clauses.append("CAST(reg_no AS TEXT) ILIKE %s")
+            params.append(f"%{reg_no}%")
+        if intern_name:
+            where_clauses.append("intern_name ILIKE %s")
+            params.append(f"%{intern_name}%")
 
-        cur.execute(
-            query,
-            (
-                reg_no, f"%{reg_no}%",
-                intern_name, f"%{intern_name}%",
-                email, f"%{email}%"
+        if where_clauses:
+            query = (
+                "SELECT reg_no, intern_name, email FROM interns WHERE "
+                + " OR ".join(where_clauses)
+                + " ORDER BY reg_no"
             )
-        )
+            cur.execute(query, tuple(params))
+        else:
+            cur.execute("SELECT reg_no, intern_name, email FROM interns ORDER BY reg_no")
 
         interns = cur.fetchall()
         count = len(interns)
 
         cur.close()
-        conn.close()
-
+        conn.close()    
     return render_template(
         "admin_dashboard.html",
-        interns=interns,
-        count=count
+        ints=interns,
+        cnt=count,
+        reg_no=reg_no,
+        intern_name=intern_name
     )
 
-    
-    
+@app.route("/admin_attendance/<reg_no>", methods=["GET", "POST"])
+def admin_attendance(reg_no):
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    # 1️⃣ Fetch intern details
+    cur.execute(
+        "SELECT reg_no, intern_name, email FROM interns WHERE reg_no = %s",
+        (reg_no,)
+    )
+    intern = cur.fetchone()
+
+    if not intern:
+        cur.close()
+        conn.close()
+        return "Intern not found", 404
+
+    today = date.today()
+
+    # 2️⃣ Check if already marked today
+    cur.execute(
+        """
+        SELECT status
+        FROM attendance
+        WHERE intern_email = %s AND date = %s
+        """,
+        (intern["email"], today)
+    )
+    today_status = cur.fetchone()
+
+    # 3️⃣ Handle attendance submission
+    if request.method == "POST":
+        status = request.form.get("status")  # 'P' or 'A'
+
+        if status not in ("P", "A"):
+            cur.close()
+            conn.close()
+            return redirect(url_for("admin_attendance", reg_no=reg_no))
+
+        if today_status:
+            # Update existing record
+            cur.execute(
+                """
+                UPDATE attendance
+                SET status = %s, marked_at = %s
+                WHERE intern_email = %s AND date = %s
+                """,
+                (status, datetime.now(), intern["email"], today)
+            )
+        else:
+            # Insert new record
+            cur.execute(
+                """
+                INSERT INTO attendance (intern_email, date, status, marked_at)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (intern["email"], today, status, datetime.now())
+            )
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for("admin_attendance", reg_no=reg_no))
+
+    # 4️⃣ Fetch attendance history
+    cur.execute(
+        """
+        SELECT date, status, marked_at
+        FROM attendance
+        WHERE intern_email = %s
+        ORDER BY date DESC
+        """,
+        (intern["email"],)
+    )
+    history = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "admin_attendance.html",
+        intern=intern,
+        today_status=today_status["status"] if today_status else None,
+        history=history
+    )
+
+
 @app.route("/intern_attendance")
 def intern_attendance():
     if not session.get("admin_logged_in"):
         return redirect(url_for("admin_login"))
 
     return render_template("intern_attendance.html")
-
 
 
 @app.route("/success/<reg_no>")

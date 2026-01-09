@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: hal_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: hal_db
+      POSTGRES_USER: hal_user
+      POSTGRES_PASSWORD: hal_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: hal_flask_app
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8000:5000"
+    command: gunicorn -b 0.0.0.0:5000 app:app
+
+volumes:
+  postgres_data:
