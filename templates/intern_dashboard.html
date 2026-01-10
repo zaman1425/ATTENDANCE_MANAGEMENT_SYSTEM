@@ -43,11 +43,22 @@
         ● Active Intern
       </span>
     </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="px-10 mb-6">
+          {% for category, message in messages %}
+            <div class="p-4 rounded-xl mb-3 {% if category == 'success' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif category == 'error' %}bg-red-100 text-red-800 border border-red-200{% elif category == 'info' %}bg-slate-100 text-slate-800 border border-slate-200{% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <!-- MAIN CARD -->
     <form method="POST"
       class="bg-white rounded-3xl shadow-[0_40px_120px_rgba(0,0,0,0.6)]
-             border border-slate-200 overflow-hidden">
+             border border-slate-200 overflow-visible">
 
       <!-- PROFILE -->
       <div class="px-10 py-8 border-b border-slate-200">
@@ -214,12 +225,36 @@
 
     </form>
 
-    <!-- FOOTER -->
     <p class="mt-10 text-center text-xs text-slate-400 font-medium">
       © Hindustan Aeronautics Limited · Internal Internship Management System
     </p>
 
   </div>
+
+  <script>
+    (function(){
+      const initialLatest = "{{ attendance[0].date if attendance|length > 0 else '' }}";
+      let latest = initialLatest;
+
+      async function checkLatest(){
+        try{
+          const res = await fetch('/api/attendance/latest');
+          if(!res.ok) return;
+          const data = await res.json();
+          const remoteDate = data.date || '';
+          if(remoteDate && remoteDate !== latest){
+            // New attendance appeared — reload to reflect it
+            location.reload();
+          }
+        }catch(e){
+          // ignore network errors silently
+        }
+      }
+
+      // Poll every 5 seconds
+      setInterval(checkLatest, 5000);
+    })();
+  </script>
 
 </body>
 </html>

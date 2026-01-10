@@ -39,6 +39,18 @@
       </div>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 px-2">
+          {% for category, message in messages %}
+            <div class="p-4 rounded-xl mb-3 {% if category == 'success' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif category == 'error' %}bg-red-100 text-red-800 border border-red-200{% elif category == 'info' %}bg-slate-100 text-slate-800 border border-slate-200{% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <!-- Search Card -->
     <div class="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] mb-8 overflow-hidden">
       
@@ -66,6 +78,9 @@
               class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border-2 border-gray-200
                      text-gray-800 placeholder-gray-400
                      focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
+            {% if reg_error %}
+              <p class="text-sm text-red-600 mt-2">{{ reg_error }}</p>
+            {% endif %}
           </div>
 
           <div class="group">
@@ -79,6 +94,9 @@
               class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border-2 border-gray-200
                      text-gray-800 placeholder-gray-400
                      focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200">
+            {% if name_error %}
+              <p class="text-sm text-red-600 mt-2">{{ name_error }}</p>
+            {% endif %}
           </div>
 
           <!-- Email search removed: only Reg No and Intern Name are searchable now -->

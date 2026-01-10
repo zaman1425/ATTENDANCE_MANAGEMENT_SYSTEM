@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, send_file
+import io
+from openpyxl import Workbook
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from psycopg2.extras import DictCursor, RealDictCursor
@@ -105,60 +107,49 @@ def admin_dashboard():
     count = 0
     reg_no = request.values.get("reg_no", "").strip()
     intern_name = request.values.get("intern_name", "").strip()
-    if reg_no or intern_name:
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        try:
-            cur.execute("SELECT COUNT(*) AS cnt FROM interns")
-            cnt_row = cur.fetchone()
-            if isinstance(cnt_row, dict):
-                total_interns = cnt_row.get("cnt")
-            else:
-                total_interns = cnt_row[0]
-        except Exception as _e:
-            total_interns = f"error: {_e}"
-        if reg_no:
-            try:
-                cur.execute("SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s", (reg_no,))
-                exact_reg = cur.fetchall()
-            except Exception as _e:
-                exact_reg = f"error: {_e}"
-        try:
-            cur.execute("SELECT reg_no, intern_name, email FROM interns LIMIT 5")
-            sample_rows = cur.fetchall()
-        except Exception as _e:
-            sample_rows = f"error: {_e}"
-        where_clauses = []
-        params = []
 
-        if reg_no:
-            where_clauses.append("CAST(reg_no AS TEXT) ILIKE %s")
-            params.append(f"%{reg_no}%")
-        if intern_name:
-            where_clauses.append("intern_name ILIKE %s")
-            params.append(f"%{intern_name}%")
+    # Inline validation variables (shown under inputs)
+    reg_error = None
+    name_error = None
+    general_error = None
 
-        if where_clauses:
-            query = (
-                "SELECT reg_no, intern_name, email FROM interns WHERE "
-                + " OR ".join(where_clauses)
-                + " ORDER BY reg_no"
-            )
-            cur.execute(query, tuple(params))
+    # Only validate on POST to avoid showing messages on initial GET
+    if request.method == "POST":
+        if not reg_no and not intern_name:
+            reg_error = "Please enter the Reg No."
+            name_error = "Please enter the Intern Name."
+
+        elif reg_no and not intern_name:
+            name_error = "Please also enter the intern name when searching by Reg No."
+
+        elif intern_name and not reg_no:
+            reg_error = "Please also enter the Reg No when searching by Name."
+
         else:
-            cur.execute("SELECT reg_no, intern_name, email FROM interns ORDER BY reg_no")
+            conn = get_db_connection()
+            cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        interns = cur.fetchall()
-        count = len(interns)
+            cur.execute(
+                "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s AND intern_name ILIKE %s ORDER BY reg_no",
+                (reg_no, f"%{intern_name}%")
+            )
+            interns = cur.fetchall()
+            count = len(interns)
 
-        cur.close()
-        conn.close()    
+            if count == 0:
+                general_error = "No intern found matching the provided Reg No and Name."
+
+            cur.close()
+            conn.close()
     return render_template(
         "admin_dashboard.html",
         ints=interns,
         cnt=count,
         reg_no=reg_no,
-        intern_name=intern_name
+        intern_name=intern_name,
+        reg_error=reg_error,
+        name_error=name_error,
+        general_error=general_error
     )
 
 @app.route("/admin_attendance/<reg_no>", methods=["GET", "POST"])
@@ -169,7 +160,6 @@ def admin_attendance(reg_no):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    # 1️⃣ Fetch intern details
     cur.execute(
         "SELECT reg_no, intern_name, email FROM interns WHERE reg_no = %s",
         (reg_no,)
@@ -213,6 +203,7 @@ def admin_attendance(reg_no):
                 """,
                 (status, datetime.now(), intern["email"], today)
             )
+            flash("Attendance updated for today.", "success")
         else:
             # Insert new record
             cur.execute(
@@ -222,6 +213,7 @@ def admin_attendance(reg_no):
                 """,
                 (intern["email"], today, status, datetime.now())
             )
+            flash("Attendance recorded for today.", "success")
 
         conn.commit()
         cur.close()
@@ -368,7 +360,9 @@ def home():
 
     return render_template("home.html")
 
-@app.route("/intern_dashboard")
+from flask import flash
+
+@app.route("/intern_dashboard", methods=["GET", "POST"])
 def intern_dashboard():
     if not session.get("intern_logged_in"):
         return redirect(url_for("already"))
@@ -378,28 +372,178 @@ def intern_dashboard():
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Fetch intern
     cur.execute(
         "SELECT * FROM interns WHERE email = %s",
         (email,)
     )
     intern = cur.fetchone()
 
+    if not intern:
+        cur.close()
+        conn.close()
+        return "Intern not found", 404
+
+    # Fetch attendance
     cur.execute(
         "SELECT date, status FROM attendance WHERE intern_email = %s ORDER BY date DESC",
         (email,)
     )
     attendance = cur.fetchall()
 
+    # ---------------- UPDATE LOGIC ----------------
+    if request.method == "POST":
+        new_data = {
+            "intern_name": request.form.get("intern_name", "").strip(),
+            "age": request.form.get("age", "").strip(),
+            "contact": request.form.get("contact", "").strip(),
+            "college": request.form.get("college", "").strip(),
+            "course": request.form.get("course", "").strip(),
+            "reference_by": request.form.get("reference_by", "").strip(),
+            "project": request.form.get("project", "").strip()
+        }
+
+        old_data = {
+            "intern_name": intern["intern_name"],
+            "age": str(intern["age"]),
+            "contact": intern["contact"],
+            "college": intern["college"],
+            "course": intern["course"],
+            "reference_by": intern["reference_by"],
+            "project": intern["project"]
+        }
+
+        # Detect changes
+        changes = {
+            key: value
+            for key, value in new_data.items()
+            if value != old_data.get(key, "")
+        }
+
+        if not changes:
+            flash("No changes detected. Your profile is already up to date.", "info")
+        else:
+            update_query = """
+                UPDATE interns
+                SET intern_name = %s,
+                    age = %s,
+                    contact = %s,
+                    college = %s,
+                    course = %s,
+                    reference_by = %s,
+                    project = %s
+                WHERE email = %s
+            """
+
+            cur.execute(
+                update_query,
+                (
+                    new_data["intern_name"],
+                    new_data["age"],
+                    new_data["contact"],
+                    new_data["college"],
+                    new_data["course"],
+                    new_data["reference_by"],
+                    new_data["project"],
+                    email
+                )
+            )
+
+            conn.commit()
+            flash("Profile updated successfully.", "success")
+
+            # Reload updated data
+            cur.execute(
+                "SELECT * FROM interns WHERE email = %s",
+                (email,)
+            )
+            intern = cur.fetchone()
+
     cur.close()
     conn.close()
-
-    if not intern:
-        return "Intern not found", 404
 
     return render_template(
         "intern_dashboard.html",
         intern=intern,
         attendance=attendance
+    )
+
+
+@app.route('/api/attendance/latest')
+def api_attendance_latest():
+    # Return the most recent attendance record for the logged-in intern (JSON)
+    if not session.get('intern_logged_in'):
+        return jsonify({'error': 'not_logged_in'}), 401
+
+    email = session.get('intern_email')
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT date, status FROM attendance WHERE intern_email = %s ORDER BY date DESC LIMIT 1",
+        (email,)
+    )
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not row:
+        return jsonify({'date': None, 'status': None})
+
+    # row[0] is a date object — convert to ISO string
+    latest_date = row[0].isoformat() if hasattr(row[0], 'isoformat') else str(row[0])
+    return jsonify({'date': latest_date, 'status': row[1]})
+
+
+@app.route('/export_attendance/<reg_no>', methods=['POST'])
+def export_attendance(reg_no):
+    # Export attendance records for the given intern reg_no to an Excel file
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s",
+        (reg_no,)
+    )
+    intern = cur.fetchone()
+    if not intern:
+        cur.close()
+        conn.close()
+        flash('Intern not found for export', 'error')
+        return redirect(url_for('admin_attendance', reg_no=reg_no))
+
+    cur.execute(
+        "SELECT date, status, marked_at FROM attendance WHERE intern_email = %s ORDER BY date DESC",
+        (intern[2],)
+    )
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Attendance"
+
+    # Header
+    ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
+
+    for r in rows:
+        date_val = r[0].isoformat() if hasattr(r[0], 'isoformat') else str(r[0])
+        status = r[1]
+        marked_at = r[2].isoformat() if hasattr(r[2], 'isoformat') else str(r[2])
+        ws.append([intern[0], intern[1], intern[2], date_val, status, marked_at])
+
+    file_stream = io.BytesIO()
+    wb.save(file_stream)
+    file_stream.seek(0)
+
+    filename = f"attendance_{reg_no}.xlsx"
+    return send_file(
+        file_stream,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
 

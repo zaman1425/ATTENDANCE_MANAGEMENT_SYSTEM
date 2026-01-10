@@ -105,6 +105,29 @@
       </h2>
     </div>
 
+    <div class="p-6">
+      {% if today_status %}
+        <div class="mb-4 inline-block px-4 py-2 rounded-lg {% if today_status == 'P' %}bg-emerald-100 text-emerald-800{% else %}bg-red-100 text-red-800{% endif %} border {% if today_status == 'P' %}border-emerald-200{% else %}border-red-200{% endif %}">
+          <strong>Today's status:</strong>
+          {% if today_status == 'P' %} Present {% else %} Absent {% endif %}
+        </div>
+      {% else %}
+        <div class="mb-4 text-sm text-gray-600">No attendance recorded for today yet.</div>
+      {% endif %}
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-4">
+            {% for category, message in messages %}
+              <div class="p-3 rounded-md mb-2 {% if category == 'success' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif category == 'error' %}bg-red-100 text-red-800 border border-red-200{% else %}bg-slate-100 text-slate-800 border border-slate-200{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
+
     <form method="POST" class="p-8 flex items-center gap-4">
 
       <button name="status" value="P"
@@ -128,6 +151,14 @@
       </span>
 
     </form>
+    <div class="p-8 flex justify-center">
+      <form method="POST" action="{{ url_for('export_attendance', reg_no=intern.reg_no) }}">
+        <button type="submit"
+                class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition">
+          Export Attendance to Excel
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- ================= ATTENDANCE HISTORY ================= -->
