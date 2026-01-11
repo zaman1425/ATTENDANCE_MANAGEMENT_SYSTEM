@@ -151,11 +151,18 @@
       </span>
 
     </form>
-    <div class="p-8 flex justify-center">
+    <div class="p-8 flex justify-center gap-4">
       <form method="POST" action="{{ url_for('export_attendance', reg_no=intern.reg_no) }}">
-        <button type="submit"
+        <button type="submit" name="download" value="0"
+                class="px-6 py-3 rounded-xl bg-gray-200 text-gray-800 font-bold hover:bg-gray-300 transition">
+          Save Export on Server
+        </button>
+      </form>
+
+      <form method="POST" action="{{ url_for('export_attendance', reg_no=intern.reg_no) }}">
+        <button type="submit" name="download" value="1"
                 class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition">
-          Export Attendance to Excel
+          Export &amp; Download
         </button>
       </form>
     </div>

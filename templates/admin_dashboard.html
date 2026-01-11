@@ -158,6 +158,11 @@
 </div>
 
       </form>
+      {% if general_error %}
+        <div class="px-8 py-4">
+          <p class="text-sm text-red-600">{{ general_error }}</p>
+        </div>
+      {% endif %}
     </div>
     
     {% if ints %}

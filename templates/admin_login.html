@@ -36,7 +36,9 @@
       </div>
       {% endif %}
 
-      <form method="POST" action="{{ url_for('admin_login') }}" class="space-y-6">
+      <form id="adminLoginForm" method="POST" action="{{ url_for('admin_login') }}" class="space-y-6">
+
+        <input type="hidden" name="next" id="nextInput" value="{{ next or '' }}">
 
         <div class="grid grid-cols-3 gap-4 items-center">
           <label class="text-sm font-semibold text-slate-700">Email</label>
@@ -50,9 +52,15 @@
             class="col-span-2 px-4 py-3 rounded-lg border bg-slate-50 focus:ring-2 focus:ring-blue-600">
         </div>
 
-        <button class="w-full py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white font-bold rounded-lg">
-          Sign In
-        </button>
+        <div class="flex gap-3">
+          <button type="submit" id="normalSignIn" class="flex-1 py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white font-bold rounded-lg">
+            <span id="signInLabel">Sign In</span>
+          </button>
+
+          <button type="button" id="requestsToggle" aria-pressed="false" class="flex-1 py-3 bg-white text-slate-800 font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+            Admin Requests
+          </button>
+        </div>
       </form>
 
       <!-- ✅ NEW ADMIN SIGNUP LINK -->
@@ -68,6 +76,51 @@
 
     </div>
   </div>
+
+  <script>
+    // Toggle 'requests mode' when Admin Requests button is clicked.
+    // In requests mode the Sign In button will submit with next='requests'.
+    (function(){
+      const toggle = document.getElementById('requestsToggle');
+      const normalBtn = document.getElementById('normalSignIn');
+      const nextInput = document.getElementById('nextInput');
+      const signInLabel = document.getElementById('signInLabel');
+
+      // Initialize UI if server pre-set `next`
+      if(nextInput.value === 'requests'){
+        activateRequestsMode();
+      }
+
+      toggle.addEventListener('click', function(){
+        if(toggle.getAttribute('aria-pressed') === 'true'){
+          deactivateRequestsMode();
+        } else {
+          activateRequestsMode();
+        }
+      });
+
+      function activateRequestsMode(){
+        toggle.setAttribute('aria-pressed','true');
+        toggle.classList.remove('bg-white','text-slate-800');
+        toggle.classList.add('bg-emerald-600','text-white');
+        nextInput.value = 'requests';
+        signInLabel.textContent = 'Sign In & Review Requests';
+      }
+
+      function deactivateRequestsMode(){
+        toggle.setAttribute('aria-pressed','false');
+        toggle.classList.remove('bg-emerald-600','text-white');
+        toggle.classList.add('bg-white','text-slate-800');
+        nextInput.value = '';
+        signInLabel.textContent = 'Sign In';
+      }
+
+      // If user clicks Sign In, default behavior uses current nextInput value
+      normalBtn.addEventListener('click', function(){
+        // Nothing to do: form submits with whatever nextInput is set to.
+      });
+    })();
+  </script>
 
 </body>
 </html>

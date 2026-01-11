@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, send_file
 import io
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from psycopg2.extras import DictCursor, RealDictCursor
@@ -22,6 +22,35 @@ def get_db_connection():
         port=os.getenv("DB_PORT"),
         cursor_factory=DictCursor
     )
+
+
+def ensure_admin_requests_table():
+    """Create the admin_requests table if it doesn't exist yet."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS admin_requests (
+                id SERIAL PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT now()
+            )
+            """
+        )
+        conn.commit()
+        cur.close()
+    except Exception:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+    finally:
+        if conn:
+            conn.close()
     
 @app.route("/admin_signup_success")
 def admin_signup_success():
@@ -48,8 +77,9 @@ def admin_signup():
         hashed = generate_password_hash(password)
 
         conn = get_db_connection()
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
+        # If already an approved admin, reject signup
         cur.execute("SELECT id FROM admins WHERE email=%s", (email,))
         if cur.fetchone():
             cur.close()
@@ -59,13 +89,25 @@ def admin_signup():
                 error="Admin already exists. Please login."
             )
 
+        # If there's already a pending request, inform user
+        cur.execute("SELECT id FROM admin_requests WHERE email=%s", (email,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return render_template(
+                "admin_signup.html",
+                error="A signup request for this email is already pending approval."
+            )
+
+        # Insert into pending admin requests for approval by an existing admin
         cur.execute(
-            "INSERT INTO admins (email, password) VALUES (%s, %s)",
-            (email, hashed)
+            "INSERT INTO admin_requests (email, password_hash, created_at) VALUES (%s, %s, %s)",
+            (email, hashed, datetime.now())
         )
         conn.commit()
         cur.close()
         conn.close()
+        flash("Your admin signup request has been submitted for approval.", "info")
         return redirect(url_for("admin_signup_success"))
 
     return render_template("admin_signup.html")
@@ -76,6 +118,7 @@ def admin_login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
+        next_target = request.form.get("next", "")
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -87,15 +130,75 @@ def admin_login():
         if not admin or not check_password_hash(admin[0], password):
             return render_template(
                 "admin_login.html",
-                error="Invalid credentials"
+                error="Invalid credentials",
+                next=next_target
             )
 
         session["admin_logged_in"] = True
         session["admin_email"] = email
+        if next_target == 'requests':
+            return redirect(url_for('admin_requests'))
 
         return redirect(url_for("admin_dashboard"))
+    next_target = request.args.get('next', '')
+    return render_template("admin_login.html", next=next_target)
 
-    return render_template("admin_login.html")
+
+@app.route('/admin_requests')
+def admin_requests():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, email, created_at FROM admin_requests ORDER BY created_at DESC")
+    reqs = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('admin_requests.html', requests=reqs)
+
+
+@app.route('/admin_requests/approve/<int:req_id>', methods=['POST'])
+def admin_request_approve(req_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT id, email, password_hash FROM admin_requests WHERE id = %s', (req_id,))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        conn.close()
+        flash('Request not found', 'error')
+        return redirect(url_for('admin_requests'))
+    try:
+        cur.execute('INSERT INTO admins (email, password) VALUES (%s, %s)', (row['email'], row['password_hash']))
+        cur.execute('DELETE FROM admin_requests WHERE id = %s', (req_id,))
+        conn.commit()
+        flash(f"Approved admin: {row['email']}", 'success')
+    except Exception as e:
+        conn.rollback()
+        flash('Error approving request: ' + str(e), 'error')
+
+    cur.close()
+    conn.close()
+    return redirect(url_for('admin_requests'))
+
+
+@app.route('/admin_requests/reject/<int:req_id>', methods=['POST'])
+def admin_request_reject(req_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM admin_requests WHERE id = %s', (req_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Request rejected and removed.', 'info')
+    return redirect(url_for('admin_requests'))
 
 
 
@@ -107,37 +210,38 @@ def admin_dashboard():
     count = 0
     reg_no = request.values.get("reg_no", "").strip()
     intern_name = request.values.get("intern_name", "").strip()
-
-    # Inline validation variables (shown under inputs)
     reg_error = None
     name_error = None
     general_error = None
-
-    # Only validate on POST to avoid showing messages on initial GET
     if request.method == "POST":
         if not reg_no and not intern_name:
-            reg_error = "Please enter the Reg No."
-            name_error = "Please enter the Intern Name."
-
-        elif reg_no and not intern_name:
-            name_error = "Please also enter the intern name when searching by Reg No."
-
-        elif intern_name and not reg_no:
-            reg_error = "Please also enter the Reg No when searching by Name."
+            reg_error = "Please provide Reg No or Intern Name."
+            name_error = "Please provide Reg No or Intern Name."
 
         else:
             conn = get_db_connection()
             cur = conn.cursor(cursor_factory=RealDictCursor)
+            if reg_no and intern_name:
+                cur.execute(
+                    "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s AND intern_name ILIKE %s ORDER BY reg_no",
+                    (reg_no, f"%{intern_name}%")
+                )
+            elif reg_no:
+                cur.execute(
+                    "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s ORDER BY reg_no",
+                    (reg_no,)
+                )
+            else:
+                cur.execute(
+                    "SELECT reg_no, intern_name, email FROM interns WHERE intern_name ILIKE %s ORDER BY reg_no",
+                    (f"%{intern_name}%",)
+                )
 
-            cur.execute(
-                "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s AND intern_name ILIKE %s ORDER BY reg_no",
-                (reg_no, f"%{intern_name}%")
-            )
             interns = cur.fetchall()
             count = len(interns)
 
             if count == 0:
-                general_error = "No intern found matching the provided Reg No and Name."
+                general_error = "No intern found matching the provided search criteria."
 
             cur.close()
             conn.close()
@@ -240,7 +344,7 @@ def admin_attendance(reg_no):
         "admin_attendance.html",
         intern=intern,
         today_status=today_status["status"] if today_status else None,
-        history=history
+        attendance=history
     )
 
 
@@ -501,7 +605,7 @@ def export_attendance(reg_no):
         return redirect(url_for('admin_login'))
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
         "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s",
         (reg_no,)
@@ -515,36 +619,78 @@ def export_attendance(reg_no):
 
     cur.execute(
         "SELECT date, status, marked_at FROM attendance WHERE intern_email = %s ORDER BY date DESC",
-        (intern[2],)
+        (intern['email'],)
     )
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Attendance"
+    # Persist to a master file on disk under ./exports/attendance_master.xlsx
+    exports_dir = os.path.join(os.path.dirname(__file__), "exports")
+    os.makedirs(exports_dir, exist_ok=True)
+    master_path = os.path.join(exports_dir, "attendance_master.xlsx")
 
-    # Header
-    ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
+    # Load or create workbook
+    if os.path.exists(master_path):
+        wb = load_workbook(master_path)
+        ws = wb.active
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Attendance"
+        ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
 
+    # Build an index of existing rows by (reg_no, date_iso) => row_index
+    existing_index = {}
+    for idx, row_cells in enumerate(ws.iter_rows(min_row=2), start=2):
+        vals = [c.value for c in row_cells]
+        reg_val = str(vals[0]) if vals[0] is not None else ""
+        date_cell = vals[3]
+        date_iso = date_cell.isoformat() if hasattr(date_cell, 'isoformat') else str(date_cell)
+        existing_index[(reg_val, date_iso)] = idx
+
+    # Append or update rows for this intern; write formatted strings for Date and Marked At
     for r in rows:
-        date_val = r[0].isoformat() if hasattr(r[0], 'isoformat') else str(r[0])
-        status = r[1]
-        marked_at = r[2].isoformat() if hasattr(r[2], 'isoformat') else str(r[2])
-        ws.append([intern[0], intern[1], intern[2], date_val, status, marked_at])
+        date_obj = r['date'] if isinstance(r, dict) and 'date' in r else r[0]
+        status = r['status'] if isinstance(r, dict) and 'status' in r else r[1]
+        marked_at = r['marked_at'] if isinstance(r, dict) and 'marked_at' in r else r[2]
 
-    file_stream = io.BytesIO()
-    wb.save(file_stream)
-    file_stream.seek(0)
+        # Format as strings so Excel displays them reliably
+        try:
+            date_str = date_obj.strftime('%Y-%m-%d') if date_obj is not None and hasattr(date_obj, 'strftime') else (str(date_obj) if date_obj is not None else '')
+        except Exception:
+            date_str = str(date_obj)
 
-    filename = f"attendance_{reg_no}.xlsx"
-    return send_file(
-        file_stream,
-        as_attachment=True,
-        download_name=filename,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+        try:
+            marked_str = marked_at.strftime('%Y-%m-%d %H:%M:%S') if marked_at is not None and hasattr(marked_at, 'strftime') else (str(marked_at) if marked_at is not None else '')
+        except Exception:
+            marked_str = str(marked_at)
+
+        key = (str(intern['reg_no']), date_str)
+
+        if key in existing_index:
+            row_idx = existing_index[key]
+            # Columns: 1=Reg No,2=Intern Name,3=Email,4=Date,5=Status,6=Marked At
+            ws.cell(row=row_idx, column=5).value = status
+            ws.cell(row=row_idx, column=6).value = marked_str
+            ws.cell(row=row_idx, column=4).value = date_str
+        else:
+            ws.append([intern['reg_no'], intern['intern_name'], intern['email'], date_str, status, marked_str])
+
+    wb.save(master_path)
+
+    # If client requested an immediate download (form field 'download' == '1'), send the master file.
+    # Otherwise just store it on server and redirect back with a safe message.
+    if request.form.get('download') == '1' or request.args.get('download') == '1':
+        return send_file(
+            master_path,
+            as_attachment=True,
+            download_name="attendance_master.xlsx",
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+    flash('Attendance exported and saved to exports/attendance_master.xlsx', 'success')
+    return redirect(url_for('admin_attendance', reg_no=reg_no))
 
 
 @app.route("/logout")
@@ -553,5 +699,28 @@ def logout():
     return redirect(url_for("login"))
 
 
+@app.route('/_db_check')
+def _db_check():
+    """Temporary route: verifies DB connection and returns a small sample from interns."""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT COUNT(*) AS cnt FROM interns")
+        cnt = cur.fetchone()["cnt"]
+        cur.execute("SELECT reg_no, intern_name, email FROM interns ORDER BY reg_no LIMIT 5")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify({"ok": True, "count": cnt, "sample": rows})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
 if __name__ == "__main__":
+    # Ensure required helper tables exist
+    try:
+        ensure_admin_requests_table()
+    except Exception:
+        pass
+
     app.run(debug=True)
