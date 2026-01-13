@@ -7,6 +7,7 @@ from psycopg2.extras import DictCursor, RealDictCursor
 from datetime import date, datetime
 import os
 from dotenv import load_dotenv
+from zipfile import BadZipFile
 
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
@@ -475,8 +476,6 @@ def intern_dashboard():
 
     conn = get_db_connection()
     cur = conn.cursor()
-
-    # Fetch intern
     cur.execute(
         "SELECT * FROM interns WHERE email = %s",
         (email,)
@@ -487,15 +486,11 @@ def intern_dashboard():
         cur.close()
         conn.close()
         return "Intern not found", 404
-
-    # Fetch attendance
     cur.execute(
         "SELECT date, status FROM attendance WHERE intern_email = %s ORDER BY date DESC",
         (email,)
     )
     attendance = cur.fetchall()
-
-    # ---------------- UPDATE LOGIC ----------------
     if request.method == "POST":
         new_data = {
             "intern_name": request.form.get("intern_name", "").strip(),
@@ -516,8 +511,6 @@ def intern_dashboard():
             "reference_by": intern["reference_by"],
             "project": intern["project"]
         }
-
-        # Detect changes
         changes = {
             key: value
             for key, value in new_data.items()
@@ -555,8 +548,6 @@ def intern_dashboard():
 
             conn.commit()
             flash("Profile updated successfully.", "success")
-
-            # Reload updated data
             cur.execute(
                 "SELECT * FROM interns WHERE email = %s",
                 (email,)
@@ -575,7 +566,6 @@ def intern_dashboard():
 
 @app.route('/api/attendance/latest')
 def api_attendance_latest():
-    # Return the most recent attendance record for the logged-in intern (JSON)
     if not session.get('intern_logged_in'):
         return jsonify({'error': 'not_logged_in'}), 401
 
@@ -592,25 +582,23 @@ def api_attendance_latest():
 
     if not row:
         return jsonify({'date': None, 'status': None})
-
-    # row[0] is a date object — convert to ISO string
     latest_date = row[0].isoformat() if hasattr(row[0], 'isoformat') else str(row[0])
     return jsonify({'date': latest_date, 'status': row[1]})
 
 
 @app.route('/export_attendance/<reg_no>', methods=['POST'])
 def export_attendance(reg_no):
-    # Export attendance records for the given intern reg_no to an Excel file
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+
     cur.execute(
         "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s",
         (reg_no,)
     )
     intern = cur.fetchone()
+
     if not intern:
         cur.close()
         conn.close()
@@ -622,74 +610,71 @@ def export_attendance(reg_no):
         (intern['email'],)
     )
     rows = cur.fetchall()
+
     cur.close()
     conn.close()
-
-    # Persist to a master file on disk under ./exports/attendance_master.xlsx
     exports_dir = os.path.join(os.path.dirname(__file__), "exports")
     os.makedirs(exports_dir, exist_ok=True)
     master_path = os.path.join(exports_dir, "attendance_master.xlsx")
-
-    # Load or create workbook
     if os.path.exists(master_path):
-        wb = load_workbook(master_path)
-        ws = wb.active
+        try:
+            wb = load_workbook(master_path)
+            ws = wb.active
+        except BadZipFile:
+            os.remove(master_path)
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Attendance"
+            ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
     else:
         wb = Workbook()
         ws = wb.active
         ws.title = "Attendance"
         ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
-
-    # Build an index of existing rows by (reg_no, date_iso) => row_index
     existing_index = {}
     for idx, row_cells in enumerate(ws.iter_rows(min_row=2), start=2):
-        vals = [c.value for c in row_cells]
-        reg_val = str(vals[0]) if vals[0] is not None else ""
-        date_cell = vals[3]
-        date_iso = date_cell.isoformat() if hasattr(date_cell, 'isoformat') else str(date_cell)
-        existing_index[(reg_val, date_iso)] = idx
-
-    # Append or update rows for this intern; write formatted strings for Date and Marked At
+        reg_val = str(row_cells[0].value) if row_cells[0].value else ""
+        date_val = row_cells[3].value
+        date_key = str(date_val)
+        existing_index[(reg_val, date_key)] = idx
     for r in rows:
-        date_obj = r['date'] if isinstance(r, dict) and 'date' in r else r[0]
-        status = r['status'] if isinstance(r, dict) and 'status' in r else r[1]
-        marked_at = r['marked_at'] if isinstance(r, dict) and 'marked_at' in r else r[2]
+        date_obj = r['date']
+        status = r['status']
+        marked_at = r['marked_at']
 
-        # Format as strings so Excel displays them reliably
-        try:
-            date_str = date_obj.strftime('%Y-%m-%d') if date_obj is not None and hasattr(date_obj, 'strftime') else (str(date_obj) if date_obj is not None else '')
-        except Exception:
-            date_str = str(date_obj)
-
-        try:
-            marked_str = marked_at.strftime('%Y-%m-%d %H:%M:%S') if marked_at is not None and hasattr(marked_at, 'strftime') else (str(marked_at) if marked_at is not None else '')
-        except Exception:
-            marked_str = str(marked_at)
+        date_str = date_obj.strftime('%Y-%m-%d') if date_obj else ''
+        marked_str = marked_at.strftime('%Y-%m-%d %H:%M:%S') if marked_at else ''
 
         key = (str(intern['reg_no']), date_str)
 
         if key in existing_index:
             row_idx = existing_index[key]
-            # Columns: 1=Reg No,2=Intern Name,3=Email,4=Date,5=Status,6=Marked At
+            ws.cell(row=row_idx, column=4).value = date_str
             ws.cell(row=row_idx, column=5).value = status
             ws.cell(row=row_idx, column=6).value = marked_str
-            ws.cell(row=row_idx, column=4).value = date_str
         else:
-            ws.append([intern['reg_no'], intern['intern_name'], intern['email'], date_str, status, marked_str])
+            ws.append([
+                intern['reg_no'],
+                intern['intern_name'],
+                intern['email'],
+                date_str,
+                status,
+                marked_str
+            ])
 
+    # ---- SAVE FILE ----
     wb.save(master_path)
 
-    # If client requested an immediate download (form field 'download' == '1'), send the master file.
-    # Otherwise just store it on server and redirect back with a safe message.
+    # ---- DOWNLOAD OR REDIRECT ----
     if request.form.get('download') == '1' or request.args.get('download') == '1':
         return send_file(
             master_path,
             as_attachment=True,
             download_name="attendance_master.xlsx",
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-    flash('Attendance exported and saved to exports/attendance_master.xlsx', 'success')
+    flash('Attendance exported successfully', 'success')
     return redirect(url_for('admin_attendance', reg_no=reg_no))
 
 
@@ -723,4 +708,4 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
