@@ -20,7 +20,7 @@ def get_db_connection():
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        port=os.getenv("DB_PORT"),
+        port=os.getenv("DB_PORT",5432),
         cursor_factory=DictCursor
     )
 
@@ -277,8 +277,6 @@ def admin_attendance(reg_no):
         return "Intern not found", 404
 
     today = date.today()
-
-    # 2️⃣ Check if already marked today
     cur.execute(
         """
         SELECT status
@@ -288,10 +286,8 @@ def admin_attendance(reg_no):
         (intern["email"], today)
     )
     today_status = cur.fetchone()
-
-    # 3️⃣ Handle attendance submission
     if request.method == "POST":
-        status = request.form.get("status")  # 'P' or 'A'
+        status = request.form.get("status")  
 
         if status not in ("P", "A"):
             cur.close()
@@ -299,7 +295,6 @@ def admin_attendance(reg_no):
             return redirect(url_for("admin_attendance", reg_no=reg_no))
 
         if today_status:
-            # Update existing record
             cur.execute(
                 """
                 UPDATE attendance
@@ -310,7 +305,6 @@ def admin_attendance(reg_no):
             )
             flash("Attendance updated for today.", "success")
         else:
-            # Insert new record
             cur.execute(
                 """
                 INSERT INTO attendance (intern_email, date, status, marked_at)
@@ -326,7 +320,6 @@ def admin_attendance(reg_no):
 
         return redirect(url_for("admin_attendance", reg_no=reg_no))
 
-    # 4️⃣ Fetch attendance history
     cur.execute(
         """
         SELECT date, status, marked_at
@@ -346,6 +339,7 @@ def admin_attendance(reg_no):
         intern=intern,
         today_status=today_status["status"] if today_status else None,
         attendance=history
+    
     )
 
 
