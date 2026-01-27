@@ -8,6 +8,8 @@ from datetime import date, datetime
 import os
 from dotenv import load_dotenv
 from zipfile import BadZipFile
+from openpyxl.styles import Font
+
 
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
@@ -20,7 +22,7 @@ def get_db_connection():
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        port=os.getenv("DB_PORT",5432),
+        port=os.getenv("DB_PORT", 5432),
         cursor_factory=DictCursor
     )
 
@@ -79,8 +81,6 @@ def admin_signup():
 
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
-
-        # If already an approved admin, reject signup
         cur.execute("SELECT id FROM admins WHERE email=%s", (email,))
         if cur.fetchone():
             cur.close()
@@ -342,7 +342,6 @@ def admin_attendance(reg_no):
     
     )
 
-
 @app.route("/intern_attendance")
 def intern_attendance():
     if not session.get("admin_logged_in"):
@@ -584,92 +583,160 @@ def api_attendance_latest():
 def export_attendance(reg_no):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
+    
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-
+    
     cur.execute(
         "SELECT reg_no, intern_name, email FROM interns WHERE CAST(reg_no AS TEXT) = %s",
         (reg_no,)
     )
     intern = cur.fetchone()
-
+    
     if not intern:
         cur.close()
         conn.close()
         flash('Intern not found for export', 'error')
         return redirect(url_for('admin_attendance', reg_no=reg_no))
-
+    
     cur.execute(
-        "SELECT date, status, marked_at FROM attendance WHERE intern_email = %s ORDER BY date DESC",
+        "SELECT date, status, marked_at FROM attendance WHERE intern_email = %s ORDER BY date ASC",
         (intern['email'],)
     )
     rows = cur.fetchall()
-
     cur.close()
     conn.close()
+    
+    # Define exports directory
     exports_dir = os.path.join(os.path.dirname(__file__), "exports")
     os.makedirs(exports_dir, exist_ok=True)
     master_path = os.path.join(exports_dir, "attendance_master.xlsx")
+    
+    # Load or create workbook
     if os.path.exists(master_path):
         try:
             wb = load_workbook(master_path)
             ws = wb.active
-        except BadZipFile:
-            os.remove(master_path)
+        except Exception as e:
+            print(f"Error loading workbook: {e}")
             wb = Workbook()
             ws = wb.active
             ws.title = "Attendance"
-            ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
+            # Create headers with proper formatting
+            headers = ["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"]
+            ws.append(headers)
+            # Make headers bold
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
     else:
         wb = Workbook()
         ws = wb.active
         ws.title = "Attendance"
-        ws.append(["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"])
-    existing_index = {}
-    for idx, row_cells in enumerate(ws.iter_rows(min_row=2), start=2):
-        reg_val = str(row_cells[0].value) if row_cells[0].value else ""
-        date_val = row_cells[3].value
-        date_key = str(date_val)
-        existing_index[(reg_val, date_key)] = idx
+        headers = ["Reg No", "Intern Name", "Email", "Date", "Status", "Marked At"]
+        ws.append(headers)
+        # Make headers bold
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+    
+    # Collect all existing data from Excel (excluding header)
+    all_records = {}  # key: (reg_no, date) -> [reg_no, name, email, date, status, marked_at]
+    
+    for row_cells in ws.iter_rows(min_row=2, values_only=True):
+        if row_cells[0]:  # If reg_no exists
+            reg_val = str(row_cells[0]).strip()
+            date_val = row_cells[3]
+            
+            # Handle date conversion
+            if isinstance(date_val, datetime):
+                date_key = date_val.strftime('%Y-%m-%d')
+            elif isinstance(date_val, str):
+                date_key = date_val.strip()
+            else:
+                date_key = str(date_val).strip() if date_val else ""
+            
+            key = (reg_val, date_key)
+            all_records[key] = list(row_cells)
+    
+    # Add/Update current intern's attendance
     for r in rows:
         date_obj = r['date']
         status = r['status']
         marked_at = r['marked_at']
-
+        
+        # Format date and time
         date_str = date_obj.strftime('%Y-%m-%d') if date_obj else ''
         marked_str = marked_at.strftime('%Y-%m-%d %H:%M:%S') if marked_at else ''
-
-        key = (str(intern['reg_no']), date_str)
-
-        if key in existing_index:
-            row_idx = existing_index[key]
-            ws.cell(row=row_idx, column=4).value = date_str
-            ws.cell(row=row_idx, column=5).value = status
-            ws.cell(row=row_idx, column=6).value = marked_str
-        else:
-            ws.append([
-                intern['reg_no'],
-                intern['intern_name'],
-                intern['email'],
-                date_str,
-                status,
-                marked_str
-            ])
-
-    # ---- SAVE FILE ----
-    wb.save(master_path)
-
-    # ---- DOWNLOAD OR REDIRECT ----
-    if request.form.get('download') == '1' or request.args.get('download') == '1':
-        return send_file(
-            master_path,
-            as_attachment=True,
-            download_name="attendance_master.xlsx",
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        
+        key = (str(intern['reg_no']).strip(), date_str)
+        
+        # Update or add the record
+        all_records[key] = [
+            str(intern['reg_no']),
+            intern['intern_name'],
+            intern['email'],
+            date_str,
+            status,
+            marked_str
+        ]
+    
+    # Clear all rows except header
+    ws.delete_rows(2, ws.max_row)
+    
+    # Sort records by reg_no first, then by date
+    sorted_records = sorted(
+        all_records.values(),
+        key=lambda x: (
+            str(x[0]),  # reg_no
+            datetime.strptime(x[3], '%Y-%m-%d') if x[3] else datetime.min  # date
         )
-
-    flash('Attendance exported successfully', 'success')
-    return redirect(url_for('admin_attendance', reg_no=reg_no))
+    )
+    
+    # Write sorted data back to Excel
+    for record in sorted_records:
+        ws.append(record)
+    
+    # Auto-adjust column widths for better readability
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Save the workbook
+    try:
+        wb.save(master_path)
+        wb.close()
+        print(f"Saved to: {master_path}")
+        print(f"Total records in file: {len(sorted_records)}")
+    except Exception as e:
+        flash(f'Error saving attendance file: {str(e)}', 'error')
+        return redirect(url_for('admin_attendance', reg_no=reg_no))
+    
+    # Check if download is requested
+    download_value = request.form.get('download', '0')
+    
+    if download_value == '1':
+        # Download the file
+        try:
+            return send_file(
+                master_path,
+                as_attachment=True,
+                download_name="attendance_master.xlsx",
+                mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        except Exception as e:
+            flash(f'Error downloading file: {str(e)}', 'error')
+            return redirect(url_for('admin_attendance', reg_no=reg_no))
+    else:
+        # Just save without download
+        flash(f'Attendance saved successfully! Total records: {len(sorted_records)}', 'success')
+        return redirect(url_for('admin_attendance', reg_no=reg_no))
 
 
 @app.route("/logout")
@@ -696,10 +763,11 @@ def _db_check():
 
 
 if __name__ == "__main__":
-    # Ensure required helper tables exist
     try:
         ensure_admin_requests_table()
     except Exception:
         pass
 
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Note: In Docker, Gunicorn runs this. 
+    # This block only runs locally for development
+    app.run(debug=False, host="0.0.0.0", port=5000)

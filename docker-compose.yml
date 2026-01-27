@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.8'
 
 services:
   db:
@@ -7,43 +7,44 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - attendance_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
     container_name: hal_flask_app
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     ports:
       - "8000:5000"
-    command: gunicorn -b 0.0.0.0:5000 app:app
-
-  db_backup:
-    image: postgres:15
-    container_name: hal_db_backup
-    restart: always
-    depends_on:
-      - db
-    env_file:
-      - .env
     volumes:
-      - ./db_backups:/backups
-    entrypoint: >
-      sh -c "
-      while true; do
-        echo '📦 Taking DB backup...';
-        pg_dump -h db -U $$POSTGRES_USER $$POSTGRES_DB \
-        > /backups/backup_$(date +%F_%H-%M-%S).sql;
-        echo '✅ Backup completed';
-        sleep 86400;
-      done
-      "
+      - ./exports:/app/exports
+    command: gunicorn -b 0.0.0.0:5000 app:app
+    networks:
+      - attendance_network
+    environment:
+      DB_HOST: db  # ← Important! Points to postgres service name
 
 volumes:
   postgres_data:
+
+networks:
+  attendance_network:
+    driver: bridge

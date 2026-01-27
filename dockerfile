@@ -8,18 +8,22 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy dependencies first (cache optimization)
+# Copy requirements and install dependencies
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
+# Copy application code
 COPY . .
 
-# Expose Flask port
+# Create exports directory with proper permissions
+RUN mkdir -p /app/exports && chmod 755 /app/exports
+
+# Expose port
 EXPOSE 5000
 
-# Start app with Gunicorn (PRODUCTION)
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+# FIXED: Use Gunicorn instead of Flask dev server
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--workers=4", "--timeout=120", "app:app"]

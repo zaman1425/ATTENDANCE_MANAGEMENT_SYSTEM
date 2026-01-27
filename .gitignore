@@ -1,2 +1,8 @@
-.env
-__pycache__
+.env  // ← DO NOT SEND THIS FILE
+.env.local
+__pycache__/
+*.pyc
+exports/
+*.xlsx
+venv/
+.vscode/
